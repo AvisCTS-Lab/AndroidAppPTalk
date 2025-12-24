@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -23,19 +24,49 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.avis.app.ptalk.navigation.Route
+import com.avis.app.ptalk.ui.viewmodel.AuthEvent
+import com.avis.app.ptalk.ui.viewmodel.VMAuth
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    navController: NavController,
+    vm: VMAuth = viewModel()
+) {
+    val uiState = vm.uiState.collectAsStateWithLifecycle().value
+
+    LaunchedEffect(Unit) {
+        vm.events.collect { event ->
+            when (event) {
+                is AuthEvent.LoginSuccess -> {
+
+                }
+                is AuthEvent.ShowError -> {
+
+                }
+                else -> Unit
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -74,8 +105,8 @@ fun LoginScreen(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { },
+                    value = uiState.username,
+                    onValueChange = { vm.onUsernameChanged(value = it) },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Email/Phone") },
                     singleLine = true,
@@ -95,16 +126,17 @@ fun LoginScreen(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { },
+                    value = uiState.password,
+                    onValueChange = { vm.onPasswordChanged(value = it) },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Nhập mật khẩu") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if(uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = { vm.togglePasswordVisibility() }) {
                             Icon(
-                                imageVector = Icons.Filled.Visibility,
+                                imageVector = if(uiState.isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                                 contentDescription = "Show password"
                             )
                         }
@@ -131,10 +163,10 @@ fun LoginScreen(navController: NavController) {
                     Text("Đăng nhập", color = Color.White, fontWeight = FontWeight.SemiBold)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "Bạn chưa có tài khoản? Vui lòng bấm đăng ký.",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.clickable { }
+                SignupPromptAnnotated(
+                    onClickSignUp = {
+                        navController.navigate(Route.SIGNUP)
+                    }
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -148,4 +180,31 @@ fun LoginScreen(navController: NavController) {
             }
         }
     }
+}
+
+@Composable
+fun SignupPromptAnnotated(onClickSignUp: () -> Unit) {
+    val annotated = buildAnnotatedString {
+        append("Bạn chưa có tài khoản vui lòng bấm ")
+        val start = length
+        append("Đăng ký")
+        addStyle(
+            style = SpanStyle(
+                color = Color.Red,
+                fontWeight = FontWeight.SemiBold,
+                textDecoration = TextDecoration.Underline
+            ),
+            start = start,
+            end = length
+        )
+        addStringAnnotation(tag = "signup", annotation = "signup", start = start, end = length)
+    }
+    Text(
+        text = annotated,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.clickable {
+            annotated.getStringAnnotations(tag = "signup", start = 0, end = annotated.length)
+            onClickSignUp()
+        },
+    )
 }
