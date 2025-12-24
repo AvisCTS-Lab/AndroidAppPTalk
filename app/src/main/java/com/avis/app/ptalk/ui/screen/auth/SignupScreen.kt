@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -30,6 +30,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +49,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
+import com.avis.app.ptalk.ui.component.dialog.ForgotPasswordDialog
 import com.avis.app.ptalk.ui.viewmodel.AuthEvent
+import com.avis.app.ptalk.ui.viewmodel.AuthMode
 import com.avis.app.ptalk.ui.viewmodel.VMAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +61,15 @@ fun SignupScreen(
     vm: VMAuth = viewModel()
 ) {
     val uiState = vm.uiState.collectAsStateWithLifecycle().value
+    vm.setMode(AuthMode.SIGNUP)
+
+    var showForgotPassword by remember { mutableStateOf(false) }
+    if (showForgotPassword) {
+        ForgotPasswordDialog(
+            onDismiss = {showForgotPassword = false},
+            onSendCode = {},
+        )
+    }
 
     LaunchedEffect(Unit) {
         vm.events.collect { event ->
@@ -84,7 +99,7 @@ fun SignupScreen(
             },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             },
             windowInsets = WindowInsets(0, 0, 0, 0),
@@ -203,7 +218,7 @@ fun SignupScreen(
                     color = Color.Red,
                     fontWeight = FontWeight.SemiBold
                 ),
-                modifier = Modifier.clickable { }
+                modifier = Modifier.clickable { showForgotPassword = true }
             )
         }
     }

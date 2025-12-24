@@ -25,6 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
+import com.avis.app.ptalk.ui.component.dialog.ForgotPasswordDialog
 import com.avis.app.ptalk.ui.viewmodel.AuthEvent
 import com.avis.app.ptalk.ui.viewmodel.VMAuth
 
@@ -52,6 +57,14 @@ fun LoginScreen(
     vm: VMAuth = viewModel()
 ) {
     val uiState = vm.uiState.collectAsStateWithLifecycle().value
+    var showForgotPassword by remember { mutableStateOf(false) }
+
+    if (showForgotPassword) {
+        ForgotPasswordDialog(
+            onDismiss = {showForgotPassword = false},
+            onSendCode = {}
+        )
+    }
 
     LaunchedEffect(Unit) {
         vm.events.collect { event ->
@@ -175,7 +188,7 @@ fun LoginScreen(
                         color = Color.Red,
                         fontWeight = FontWeight.SemiBold
                     ),
-                    modifier = Modifier.clickable { }
+                    modifier = Modifier.clickable { showForgotPassword = true }
                 )
             }
         }
