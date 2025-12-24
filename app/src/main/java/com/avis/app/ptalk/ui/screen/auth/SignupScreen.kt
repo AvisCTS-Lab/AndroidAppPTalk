@@ -194,7 +194,7 @@ fun SignupScreen(
             }
             Spacer(modifier = Modifier.height(12.dp))
             LoginPromptAnnotated {
-                navController.navigate(Route.LOGIN)
+                navController.popBackStack(Route.SIGNUP, inclusive = true)
             }
             Spacer(Modifier.height(6.dp))
             Text(
