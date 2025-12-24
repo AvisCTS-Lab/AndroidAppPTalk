@@ -62,7 +62,7 @@ fun LoginScreen(
     if (showForgotPassword) {
         ForgotPasswordDialog(
             onDismiss = {showForgotPassword = false},
-            onSendCode = {}
+            onSendCode = {},
         )
     }
 

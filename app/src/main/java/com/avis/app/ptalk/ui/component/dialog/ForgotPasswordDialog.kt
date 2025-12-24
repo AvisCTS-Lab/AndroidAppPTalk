@@ -38,6 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import com.avis.app.ptalk.ui.custom.DialogPosition
+import com.avis.app.ptalk.ui.custom.customDialogModifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,105 +54,111 @@ fun ForgotPasswordDialog(
 
     var account by remember { mutableStateOf("") }
 
-    BasicAlertDialog(
-        onDismissRequest = {
+    BaseDialog(
+        onDismiss = {
             focusManager.clearFocus()
             keyboardController?.hide()
             onDismiss()
-        }
-    ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-            shadowElevation = 8.dp,
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+        },
+        position = DialogPosition.BOTTOM,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        ),
+        modifier = Modifier.padding(all = 8.dp),
+        content = {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                shadowElevation = 8.dp,
             ) {
-                // Title + Close
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    Text(
-                        text = "Lấy lại mật khẩu",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.align(Alignment.CenterStart)
-                    )
-                    IconButton(
-                        onClick = {
-                            focusManager.clearFocus()
-                            keyboardController?.hide()
-                            onDismiss()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Close",
-                            tint = Color.Black,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-
-                // Label
-                Text(
-                    text = "Tên tài khoản",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-                )
-
-                // Input
-                OutlinedTextField(
-                    value = account,
-                    onValueChange = { account = it },
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Transparent),
-                    placeholder = { Text("Email/Phone") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email
-                    ),
-                    keyboardActions = KeyboardActions(onDone = {
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
-                    }),
-                    shape = RoundedCornerShape(22.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFEDEDED),
-                        unfocusedContainerColor = Color(0xFFEDEDED),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                    )
-                )
-
-                Spacer(Modifier.size(4.dp))
-
-                // Primary button (green)
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
+                        .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Button(
-                        enabled = !loading && account.isNotBlank(),
-                        onClick = {
+                    // Title + Close
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Text(
+                            text = "Lấy lại mật khẩu",
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        )
+                        IconButton(
+                            onClick = {
+                                focusManager.clearFocus()
+                                keyboardController?.hide()
+                                onDismiss()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Close",
+                                tint = Color.Black,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    // Label
+                    Text(
+                        text = "Tên tài khoản",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                    )
+
+                    // Input
+                    OutlinedTextField(
+                        value = account,
+                        onValueChange = { account = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Transparent),
+                        placeholder = { Text("Email/Phone") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email
+                        ),
+                        keyboardActions = KeyboardActions(onDone = {
                             focusManager.clearFocus()
                             keyboardController?.hide()
-                            onSendCode(account.trim())
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF34C759),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(14.dp)
+                        }),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFFEDEDED),
+                            unfocusedContainerColor = Color(0xFFEDEDED),
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        )
+                    )
+
+                    Spacer(Modifier.size(4.dp))
+
+                    // Primary button (green)
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text("Gửi mã xác thực", fontWeight = FontWeight.SemiBold)
+                        Button(
+                            enabled = !loading && account.isNotBlank(),
+                            onClick = {
+                                focusManager.clearFocus()
+                                keyboardController?.hide()
+                                onSendCode(account.trim())
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF34C759),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Text("Gửi mã xác thực", fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }
         }
-    }
+    )
 }
