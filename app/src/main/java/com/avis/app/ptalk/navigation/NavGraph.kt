@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.avis.app.ptalk.ui.screen.auth.LoginScreen
 import com.avis.app.ptalk.ui.screen.auth.SignupScreen
+import com.avis.app.ptalk.ui.screen.device.DeviceListScreen
 
 const val ANIM_DURATION = 350
 
@@ -46,5 +47,6 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier)
     ) {
         composable(Route.LOGIN) { LoginScreen(navController) }
         composable(Route.SIGNUP) { SignupScreen(navController) }
+        composable(Route.DEVICE) { DeviceListScreen(navController) }
     }
 }

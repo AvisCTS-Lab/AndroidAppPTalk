@@ -1,11 +1,13 @@
 package com.avis.app.ptalk.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
 enum class AuthMode {
     LOGIN,
@@ -64,10 +66,16 @@ class VMAuth : ViewModel() {
     }
 
     fun login() {
-
+        emitEvent(AuthEvent.LoginSuccess)
     }
 
     fun signup() {
 
+    }
+
+    private fun emitEvent(event: AuthEvent) {
+        viewModelScope.launch {
+            _events.send(event)
+        }
     }
 }

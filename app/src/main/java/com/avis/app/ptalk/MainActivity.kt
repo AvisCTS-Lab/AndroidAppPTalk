@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.avis.app.ptalk.navigation.AppNavGraph
+import com.avis.app.ptalk.ui.component.appbar.MainNavigationBar
 import com.avis.app.ptalk.ui.theme.AndroidPTalkTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,42 +27,29 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val currentRoute by navController.currentBackStackEntryAsState() // get current route for disable/enable app bar
-
             val focusManager = LocalFocusManager.current
             val keyboardController = LocalSoftwareKeyboardController.current
 
-            Scaffold(
-                topBar = {
-
-                },
-                bottomBar = {},
-                modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures {
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
+            AndroidPTalkTheme(
+                content = {
+                    Scaffold(
+                        bottomBar = {
+                            MainNavigationBar(navController = navController)
+                        },
+                        modifier = Modifier.pointerInput(Unit) {
+                            detectTapGestures {
+                                focusManager.clearFocus()
+                                keyboardController?.hide()
+                            }
+                        }
+                    ) { innerPadding ->
+                        AppNavGraph(navController = navController, modifier = Modifier.padding(paddingValues = innerPadding))
                     }
                 }
-            ) { innerPadding ->
-                AppNavGraph(navController = navController, modifier = Modifier.padding(paddingValues = innerPadding))
-            }
+            )
+
+
 
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AndroidPTalkTheme {
-        Greeting("Android")
     }
 }

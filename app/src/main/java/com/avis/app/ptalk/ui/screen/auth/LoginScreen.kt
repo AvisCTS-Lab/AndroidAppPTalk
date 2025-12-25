@@ -70,7 +70,7 @@ fun LoginScreen(
         vm.events.collect { event ->
             when (event) {
                 is AuthEvent.LoginSuccess -> {
-
+                    navController.navigate(Route.DEVICE)
                 }
                 is AuthEvent.ShowError -> {
 
@@ -83,7 +83,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFE0E0E0))
+            .background(color = MaterialTheme.colorScheme.primary)
     ) {
         Box(
             modifier = Modifier
@@ -97,7 +97,7 @@ fun LoginScreen(
                     fontSize = 128.sp,
                     fontWeight = FontWeight.Black,
                     fontStyle = FontStyle.Italic,
-                    color = Color(0xFFF06A6A) // pink-ish red like screenshot
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -105,7 +105,7 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFFFFFF))
+                .background(MaterialTheme.colorScheme.surface)
         ) {
             Column(
                 modifier = Modifier
@@ -114,7 +114,8 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Tên tài khoản",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -125,12 +126,6 @@ fun LoginScreen(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     shape = RoundedCornerShape(22.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFEDEDED),
-                        unfocusedContainerColor = Color(0xFFEDEDED),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -155,25 +150,22 @@ fun LoginScreen(
                         }
                     },
                     shape = RoundedCornerShape(22.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFEDEDED),
-                        unfocusedContainerColor = Color(0xFFEDEDED),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { },
+                    onClick = { vm.login() },
                     enabled = true,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .fillMaxWidth(0.55f),
                     contentPadding = PaddingValues(vertical = 12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F80ED)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     shape = RoundedCornerShape(14.dp)
                 ) {
-                    Text("Đăng nhập", color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Text("Đăng nhập", fontWeight = FontWeight.SemiBold)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 SignupPromptAnnotated(
@@ -184,8 +176,8 @@ fun LoginScreen(
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = "Quên mật khẩu",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color.Red,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.inversePrimary,
                         fontWeight = FontWeight.SemiBold
                     ),
                     modifier = Modifier.clickable { showForgotPassword = true }
@@ -203,7 +195,7 @@ fun SignupPromptAnnotated(onClickSignUp: () -> Unit) {
         append("Đăng ký")
         addStyle(
             style = SpanStyle(
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.inversePrimary,
                 fontWeight = FontWeight.SemiBold,
                 textDecoration = TextDecoration.Underline
             ),
@@ -214,7 +206,7 @@ fun SignupPromptAnnotated(onClickSignUp: () -> Unit) {
     }
     Text(
         text = annotated,
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier.clickable {
             annotated.getStringAnnotations(tag = "signup", start = 0, end = annotated.length)
             onClickSignUp()

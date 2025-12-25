@@ -68,7 +68,7 @@ fun ForgotPasswordDialog(
         content = {
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 8.dp,
             ) {
                 Column(
@@ -97,7 +97,6 @@ fun ForgotPasswordDialog(
                             Icon(
                                 imageVector = Icons.Filled.Close,
                                 contentDescription = "Close",
-                                tint = Color.Black,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -126,12 +125,6 @@ fun ForgotPasswordDialog(
                             keyboardController?.hide()
                         }),
                         shape = RoundedCornerShape(22.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFEDEDED),
-                            unfocusedContainerColor = Color(0xFFEDEDED),
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                        )
                     )
 
                     Spacer(Modifier.size(4.dp))
