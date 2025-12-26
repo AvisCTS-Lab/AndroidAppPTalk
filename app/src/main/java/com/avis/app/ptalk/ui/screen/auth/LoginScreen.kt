@@ -83,7 +83,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.primary)
+            .background(color = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Box(
             modifier = Modifier
@@ -97,7 +97,7 @@ fun LoginScreen(
                     fontSize = 128.sp,
                     fontWeight = FontWeight.Black,
                     fontStyle = FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
         }
@@ -160,8 +160,8 @@ fun LoginScreen(
                         .fillMaxWidth(0.55f),
                     contentPadding = PaddingValues(vertical = 12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     shape = RoundedCornerShape(14.dp)
                 ) {

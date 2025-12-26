@@ -11,7 +11,7 @@ import com.avis.app.ptalk.ui.screen.auth.LoginScreen
 import com.avis.app.ptalk.ui.screen.auth.SignupScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceListScreen
 
-const val ANIM_DURATION = 350
+const val ANIM_DURATION = 400
 
 @Composable
 fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
