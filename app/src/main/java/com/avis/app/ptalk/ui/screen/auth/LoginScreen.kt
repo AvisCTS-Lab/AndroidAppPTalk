@@ -88,7 +88,7 @@ fun LoginScreen(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxHeight(0.4f)
+                .height(320.dp)
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
