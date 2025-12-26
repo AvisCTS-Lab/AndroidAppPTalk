@@ -36,6 +36,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -46,27 +48,26 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.StatusDot
-
-private enum class DeviceStatus { Online, Offline, Sleep }
+import com.avis.app.ptalk.ui.viewmodel.AuthEvent
+import com.avis.app.ptalk.ui.viewmodel.DeviceConnectionStatus
+import com.avis.app.ptalk.ui.viewmodel.DeviceState
+import com.avis.app.ptalk.ui.viewmodel.VMDeviceList
 
 @Composable
 fun DeviceListScreen(
-    navController: NavController
+    navController: NavController,
+    vm: VMDeviceList = viewModel()
 ) {
-    var expanded by remember { mutableStateOf(true) }
+    val uiState = vm.uiState.collectAsStateWithLifecycle().value
 
-    val mockDevices = listOf(
-        MockDevice("Tên thiết bị", DeviceStatus.Online, 23),
-        MockDevice("Tên thiết bị", DeviceStatus.Online, 23),
-        MockDevice("Tên thiết bị", DeviceStatus.Offline, 23),
-        MockDevice("Tên thiết bị", DeviceStatus.Sleep, 23),
-        MockDevice("Tên thiết bị", DeviceStatus.Online, 23),
-        MockDevice("Tên thiết bị", DeviceStatus.Online, 23),
-    )
-
-    val deviceCount = mockDevices.size
+    LaunchedEffect(Unit) {
+        vm.loadDeviceList()
+    }
 
     Column(
         modifier = Modifier
@@ -107,7 +108,7 @@ fun DeviceListScreen(
                     StatusDot(color = Color(0xFF2ECC71), size = 8)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "$deviceCount Thiết bị",
+                        text = "${vm.getDeviceCount()} Thiết bị",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -150,21 +151,15 @@ fun DeviceListScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(mockDevices.size) { index ->
-                DeviceCard(device = mockDevices[index])
+            items(uiState.devices.size) { index ->
+                DeviceCard(device = uiState.devices[index])
             }
         }
     }
 }
 
-private data class MockDevice(
-    val name: String,
-    val status: DeviceStatus,
-    val lastSeenMinutes: Int
-)
-
 @Composable
-private fun DeviceCard(device: MockDevice) {
+private fun DeviceCard(device: DeviceState) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -191,17 +186,17 @@ private fun DeviceCard(device: MockDevice) {
             Text(device.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val statusColor = when (device.status) {
-                    DeviceStatus.Online -> Color(0xFF2ECC71)
-                    DeviceStatus.Offline -> Color.Red
-                    DeviceStatus.Sleep -> Color(0xFF999999)
+                    DeviceConnectionStatus.ONLINE -> Color(0xFF2ECC71)
+                    DeviceConnectionStatus.OFFLINE -> Color.Red
+                    DeviceConnectionStatus.SLEEP -> Color(0xFF999999)
                 }
                 StatusDot(color = statusColor)
                 Spacer(Modifier.padding(4.dp))
                 Text(
                     when (device.status) {
-                        DeviceStatus.Online -> "Online"
-                        DeviceStatus.Offline -> "Offline"
-                        DeviceStatus.Sleep -> "Sleep"
+                        DeviceConnectionStatus.ONLINE -> "Online"
+                        DeviceConnectionStatus.OFFLINE -> "Offline"
+                        DeviceConnectionStatus.SLEEP -> "Sleep"
                     },
                     style = MaterialTheme.typography.bodySmall
                 )
