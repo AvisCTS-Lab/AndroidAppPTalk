@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.StatusDot
 import com.avis.app.ptalk.ui.viewmodel.DeviceConnectionStatus
 import com.avis.app.ptalk.ui.viewmodel.DeviceState
@@ -110,16 +111,17 @@ fun DeviceListScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Filled.ExpandMore,
-                contentDescription = null,
-                modifier = Modifier.clickable(
-                    onClick = { }
+            IconButton(
+                onClick = { vm.toggleListExpanded() }
+            ) {
+                Icon(
+                    Icons.Filled.ExpandMore,
+                    contentDescription = "Expand more",
                 )
-            )
+            }
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = "Thiết bị đã liên kết",
@@ -127,7 +129,9 @@ fun DeviceListScreen(
                 modifier = Modifier.weight(1f)
             )
             IconButton (
-                onClick = { },
+                onClick = {
+                    navController.navigate(Route.ADD_DEVICE)
+                },
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Thêm thiết bị")
             }
@@ -137,7 +141,7 @@ fun DeviceListScreen(
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 12.dp),
             contentPadding = PaddingValues(bottom = 72.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -150,19 +154,16 @@ fun DeviceListScreen(
 }
 
 @Composable
-private fun DeviceCard(device: DeviceState) {
+private fun DeviceCard(device: DeviceState, onClick: () -> Unit = {}) {
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        onClick = { onClick() }
     ) {
         Column(
-            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(

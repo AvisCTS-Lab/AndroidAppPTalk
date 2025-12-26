@@ -7,4 +7,6 @@ object Route {
     val BAN_KEYWORD: String = "ban_keyword"
     val ANALYTICS: String = "analytics"
     val SETTING: String = "setting"
+
+    val ADD_DEVICE: String = "add_device"
 }

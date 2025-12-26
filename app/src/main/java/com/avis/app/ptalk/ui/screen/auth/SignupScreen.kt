@@ -129,7 +129,7 @@ fun SignupScreen(
                 placeholder = { Text("Email/Phone") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(20.dp),
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -153,7 +153,7 @@ fun SignupScreen(
                         )
                     }
                 },
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(20.dp),
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -177,7 +177,7 @@ fun SignupScreen(
                         )
                     }
                 },
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(20.dp),
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(

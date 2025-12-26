@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavDestination
@@ -31,7 +32,8 @@ import com.avis.app.ptalk.navigation.Route
 data class BottomNavItem(
     val route: String,
     val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val icon: ImageVector,
+    val matchRoutes: Set<String> = setOf(route)
 )
 
 /**
@@ -45,24 +47,23 @@ data class BottomNavItem(
 @Composable
 fun MainNavigationBar(
     navController: NavController,
-    hideOnRoutes: Set<String> = setOf(Route.LOGIN, Route.SIGNUP /*, Route.ADD_DEVICE, Route.DEVICE_DETAIL, ...*/),
-    bottomBarRoutes: Set<String>? = setOf(Route.DEVICE, Route.BAN_KEYWORD, Route.ANALYTICS, Route.SETTING)
+    hideOnRoutes: Set<String> = setOf(Route.LOGIN, Route.SIGNUP),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
 
     // Decide visibility based on the destination hierarchy (supports nested graphs)
-    val shouldShow = when {
-        bottomBarRoutes != null -> destination.isInRoutes(bottomBarRoutes)
-        else -> !destination.isInRoutes(hideOnRoutes)
-    }
+    val shouldShow = !destination.isInRoutes(hideOnRoutes)
 
     // Optional: animate initial appearance (false -> true on first eligible route)
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(shouldShow) { visible = shouldShow }
 
     val items = listOf(
-        BottomNavItem(Route.DEVICE, "Thiết bị", Icons.Default.Star),
+        BottomNavItem(Route.DEVICE, "Thiết bị", Icons.Default.Star, matchRoutes = setOf(
+            Route.DEVICE,
+            Route.ADD_DEVICE
+        )),
         BottomNavItem(Route.BAN_KEYWORD, "Chặn từ khóa", Icons.Default.Warning),
         BottomNavItem(Route.ANALYTICS, "Thống kê", Icons.Default.Analytics),
         BottomNavItem(Route.SETTING, "Cài đặt", Icons.Default.Settings)
@@ -84,7 +85,7 @@ fun MainNavigationBar(
             val currentRoute = destination?.route
             items.forEach { item ->
                 NavigationBarItem(
-                    selected = currentRoute == item.route,
+                    selected = destination.isInRoutes(item.matchRoutes),
                     onClick = {
                         navController.navigate(item.route) {
                             launchSingleTop = true

@@ -18,12 +18,12 @@ data class DeviceState (
 )
 
 val MockDeviceList = listOf (
-    DeviceState("Device 1", DeviceConnectionStatus.ONLINE, 23),
-    DeviceState("Device 2", DeviceConnectionStatus.OFFLINE, 23),
-    DeviceState("Device 3", DeviceConnectionStatus.SLEEP, 23),
-    DeviceState("Device 4", DeviceConnectionStatus.ONLINE, 23),
-    DeviceState("Device 5", DeviceConnectionStatus.ONLINE, 23),
-    DeviceState("Device 6", DeviceConnectionStatus.ONLINE, 23),
+    DeviceState("Tên thiết bị", DeviceConnectionStatus.ONLINE, 23),
+    DeviceState("Tên thiết bị", DeviceConnectionStatus.OFFLINE, 23),
+    DeviceState("Tên thiết bị", DeviceConnectionStatus.SLEEP, 23),
+    DeviceState("Tên thiết bị", DeviceConnectionStatus.ONLINE, 23),
+    DeviceState("Tên thiết bị", DeviceConnectionStatus.ONLINE, 23),
+    DeviceState("Tên thiết bị", DeviceConnectionStatus.ONLINE, 23),
 )
 
 data class DeviceListUiState (
