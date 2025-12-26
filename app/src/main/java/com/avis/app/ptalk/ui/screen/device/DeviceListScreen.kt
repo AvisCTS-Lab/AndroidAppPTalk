@@ -230,7 +230,7 @@ private fun DeviceCard(device: MockDevice) {
                         contentDescription = "Thời gian online",
                         modifier = Modifier.size(16.dp)
                     )
-                    Spacer(modifier = Modifier.padding(4.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${device.lastSeenMinutes}min",
                         style = MaterialTheme.typography.bodySmall,
