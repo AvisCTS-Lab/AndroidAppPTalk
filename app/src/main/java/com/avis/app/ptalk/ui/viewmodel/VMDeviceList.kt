@@ -1,21 +1,11 @@
 package com.avis.app.ptalk.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.avis.app.ptalk.domain.define.DeviceConnectionStatus
+import com.avis.app.ptalk.domain.model.DeviceState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
-enum class DeviceConnectionStatus {
-    ONLINE,
-    OFFLINE,
-    SLEEP
-}
-
-data class DeviceState (
-    val name: String,
-    val status: DeviceConnectionStatus,
-    val lastSeenMinutes: Int
-)
 
 val MockDeviceList = listOf (
     DeviceState("Tên thiết bị", DeviceConnectionStatus.ONLINE, 23),

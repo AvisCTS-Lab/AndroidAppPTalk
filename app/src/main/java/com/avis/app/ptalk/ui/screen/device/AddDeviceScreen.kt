@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -36,9 +37,10 @@ val MockDevicesDiscovery = listOf(
     DeviceDiscovery("Thiết bị 4", "00:00:00:00:00:04", -50),
 )
 
+//val MockDevicesDiscovery = emptyList<DeviceDiscovery>()
+
 val MockConnectedDevices = listOf(
     DeviceDiscovery("Thiết bị 5", "00:00:00:00:00:01", -50),
-
 )
 
 @Composable
@@ -64,7 +66,7 @@ fun AddDeviceScreen(
                 containerColor = Color(0xFFF8F4E1),
                 contentColor = MaterialTheme.colorScheme.scrim
             ),
-            shape = RoundedCornerShape(22.dp),
+            shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Row(
@@ -118,15 +120,26 @@ fun AddDeviceScreen(
                 modifier = Modifier.size(20.dp)
             )
         }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-            contentPadding = PaddingValues(bottom = 72.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+
+        if (MockDevicesDiscovery.isEmpty()) {
+            Text (
+                text = "Không tìm thấy thiết bị nào. Vui lòng thử lại",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth()
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                contentPadding = PaddingValues(bottom = 72.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-            items(MockDevicesDiscovery.size) { index ->
-                DeviceDiscoverCard(device = MockDevicesDiscovery[index])
+                items(MockDevicesDiscovery.size) { index ->
+                    DeviceDiscoverCard(device = MockDevicesDiscovery[index])
+                }
             }
         }
     }
@@ -148,7 +161,7 @@ private fun DeviceDiscoverCard(
         modifier = Modifier.fillMaxWidth(),
         onClick = { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        shape = RoundedCornerShape(22.dp)
+        shape = RoundedCornerShape(20.dp)
         ) {
        Row (
            verticalAlignment = Alignment.CenterVertically,

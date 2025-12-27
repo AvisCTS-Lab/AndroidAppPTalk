@@ -62,7 +62,8 @@ fun MainNavigationBar(
     val items = listOf(
         BottomNavItem(Route.DEVICE, "Thiết bị", Icons.Default.Star, matchRoutes = setOf(
             Route.DEVICE,
-            Route.ADD_DEVICE
+            Route.ADD_DEVICE,
+            Route.DEVICE_DETAIL
         )),
         BottomNavItem(Route.BAN_KEYWORD, "Chặn từ khóa", Icons.Default.Warning),
         BottomNavItem(Route.ANALYTICS, "Thống kê", Icons.Default.Analytics),

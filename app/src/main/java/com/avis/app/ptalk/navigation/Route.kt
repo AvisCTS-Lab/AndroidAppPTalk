@@ -9,4 +9,6 @@ object Route {
     val SETTING: String = "setting"
 
     val ADD_DEVICE: String = "add_device"
+    val DEVICE_DETAIL: String = "device_detail"
+    val REALTIME_CONTROL: String = "realtime_control"
 }
