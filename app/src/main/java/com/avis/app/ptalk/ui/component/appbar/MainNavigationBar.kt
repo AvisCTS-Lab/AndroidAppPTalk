@@ -64,7 +64,8 @@ fun MainNavigationBar(
             Route.DEVICE,
             Route.ADD_DEVICE,
             Route.DEVICE_DETAIL,
-            Route.REALTIME_CONTROL
+            Route.REALTIME_CONTROL,
+            Route.DEVICE_CHATLOG
         )),
         BottomNavItem(Route.BAN_KEYWORD, "Chặn từ khóa", Icons.Default.Warning),
         BottomNavItem(Route.ANALYTICS, "Thống kê", Icons.Default.Analytics),

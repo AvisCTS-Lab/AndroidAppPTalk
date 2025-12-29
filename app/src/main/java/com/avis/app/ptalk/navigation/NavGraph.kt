@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.avis.app.ptalk.ui.screen.auth.LoginScreen
 import com.avis.app.ptalk.ui.screen.auth.SignupScreen
 import com.avis.app.ptalk.ui.screen.device.AddDeviceScreen
+import com.avis.app.ptalk.ui.screen.device.DeviceChatLogScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceDetailScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceListScreen
 import com.avis.app.ptalk.ui.screen.device.RealTimeControlScreen
@@ -54,5 +55,6 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier)
         composable(Route.ADD_DEVICE) { AddDeviceScreen(navController) }
         composable(Route.DEVICE_DETAIL) { DeviceDetailScreen(navController) }
         composable(Route.REALTIME_CONTROL) { RealTimeControlScreen(navController) }
+        composable(Route.DEVICE_CHATLOG) { DeviceChatLogScreen(navController) }
     }
 }

@@ -1,14 +1,15 @@
 package com.avis.app.ptalk.navigation
 
 object Route {
-    val LOGIN: String = "login"
-    val SIGNUP: String = "signup"
-    val DEVICE: String = "device"
-    val BAN_KEYWORD: String = "ban_keyword"
-    val ANALYTICS: String = "analytics"
-    val SETTING: String = "setting"
+    const val LOGIN: String = "login"
+    const val SIGNUP: String = "signup"
+    const val DEVICE: String = "device"
+    const val BAN_KEYWORD: String = "ban_keyword"
+    const val ANALYTICS: String = "analytics"
+    const val SETTING: String = "setting"
 
-    val ADD_DEVICE: String = "add_device"
-    val DEVICE_DETAIL: String = "device_detail"
-    val REALTIME_CONTROL: String = "realtime_control"
+    const val ADD_DEVICE: String = "add_device"
+    const val DEVICE_DETAIL: String = "device_detail"
+    const val REALTIME_CONTROL: String = "realtime_control"
+    const val DEVICE_CHATLOG: String = "device_chatlog"
 }

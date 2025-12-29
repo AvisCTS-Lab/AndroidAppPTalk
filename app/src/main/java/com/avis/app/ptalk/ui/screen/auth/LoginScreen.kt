@@ -46,7 +46,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.dialog.ForgotPasswordDialog
-import com.avis.app.ptalk.ui.viewmodel.AuthEvent
 import com.avis.app.ptalk.ui.viewmodel.VMAuth
 
 @Composable
@@ -67,10 +66,10 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         vm.events.collect { event ->
             when (event) {
-                is AuthEvent.LoginSuccess -> {
+                is VMAuth.AuthEvent.LoginSuccess -> {
                     navController.navigate(Route.DEVICE)
                 }
-                is AuthEvent.ShowError -> {
+                is VMAuth.AuthEvent.ShowError -> {
 
                 }
                 else -> Unit

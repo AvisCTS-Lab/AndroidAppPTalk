@@ -48,7 +48,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.dialog.ForgotPasswordDialog
-import com.avis.app.ptalk.ui.viewmodel.AuthEvent
 import com.avis.app.ptalk.ui.viewmodel.VMAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,10 +69,10 @@ fun SignupScreen(
     LaunchedEffect(Unit) {
         vm.events.collect { event ->
             when (event) {
-                is AuthEvent.SignupSuccess -> {
+                is VMAuth.AuthEvent.SignupSuccess -> {
 
                 }
-                is AuthEvent.ShowError -> {
+                is VMAuth.AuthEvent.ShowError -> {
 
                 }
                 else -> Unit
