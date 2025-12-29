@@ -25,11 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
 
 @Composable
 fun DeviceDetailScreen(navController: NavController) {
-
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -46,7 +46,9 @@ fun DeviceDetailScreen(navController: NavController) {
                 .padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            FunctionCard(Icons.Outlined.Radio, "Điều khiển real-time")
+            FunctionCard(Icons.Outlined.Radio, "Điều khiển real-time", onClick = {
+                navController.navigate(Route.REALTIME_CONTROL)
+            })
             FunctionCard(Icons.Outlined.MoreHoriz, "Lịch sử trò chuyện")
             FunctionCard(Icons.Outlined.MoreHoriz, "Thông tin thiết bị")
             FunctionCard(Icons.Outlined.MoreHoriz, "Cài đặt thiết bị")

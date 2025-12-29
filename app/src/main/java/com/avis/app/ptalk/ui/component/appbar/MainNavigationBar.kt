@@ -63,7 +63,8 @@ fun MainNavigationBar(
         BottomNavItem(Route.DEVICE, "Thiết bị", Icons.Default.Star, matchRoutes = setOf(
             Route.DEVICE,
             Route.ADD_DEVICE,
-            Route.DEVICE_DETAIL
+            Route.DEVICE_DETAIL,
+            Route.REALTIME_CONTROL
         )),
         BottomNavItem(Route.BAN_KEYWORD, "Chặn từ khóa", Icons.Default.Warning),
         BottomNavItem(Route.ANALYTICS, "Thống kê", Icons.Default.Analytics),
@@ -83,7 +84,6 @@ fun MainNavigationBar(
         ) + fadeOut(animationSpec = tween(duration))
     ) {
         NavigationBar {
-            val currentRoute = destination?.route
             items.forEach { item ->
                 NavigationBarItem(
                     selected = destination.isInRoutes(item.matchRoutes),
