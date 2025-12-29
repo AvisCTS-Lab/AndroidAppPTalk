@@ -9,12 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-sealed class AuthEvent {
-    object LoginSuccess: AuthEvent()
-    object SignupSuccess: AuthEvent()
-    data class ShowError(val message: String): AuthEvent()
-}
-
 class VMAuth : ViewModel() {
     data class AuthUiState(
         val username: String = "",
@@ -27,6 +21,11 @@ class VMAuth : ViewModel() {
         val confirmPassword: String = "",
     )
 
+    sealed class AuthEvent {
+        object LoginSuccess: AuthEvent()
+        object SignupSuccess: AuthEvent()
+        data class ShowError(val message: String): AuthEvent()
+    }
 
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
