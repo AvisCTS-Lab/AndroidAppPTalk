@@ -9,25 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-enum class AuthMode {
-    LOGIN,
-    SIGNUP
-}
-
-data class AuthUiState(
-    val username: String = "",
-    val password: String = "",
-    val isPasswordVisible: Boolean = false,
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-
-    // default auth mode as login
-    val authMode: AuthMode = AuthMode.LOGIN,
-
-    // explicit signup field
-    val confirmPassword: String = "",
-)
-
 sealed class AuthEvent {
     object LoginSuccess: AuthEvent()
     object SignupSuccess: AuthEvent()
@@ -35,19 +16,23 @@ sealed class AuthEvent {
 }
 
 class VMAuth : ViewModel() {
+    data class AuthUiState(
+        val username: String = "",
+        val password: String = "",
+        val isPasswordVisible: Boolean = false,
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+
+        // explicit signup field
+        val confirmPassword: String = "",
+    )
+
+
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
     private val _events = Channel<AuthEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
-
-    fun setMode(mode: AuthMode) {
-        _uiState.value = _uiState.value.copy(
-            authMode = mode,
-            errorMessage = null,
-            isLoading = false
-        )
-    }
 
     fun onUsernameChanged(value: String) {
         _uiState.value = _uiState.value.copy(username = value, errorMessage = null)

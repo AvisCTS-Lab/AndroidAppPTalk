@@ -49,7 +49,6 @@ import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.dialog.ForgotPasswordDialog
 import com.avis.app.ptalk.ui.viewmodel.AuthEvent
-import com.avis.app.ptalk.ui.viewmodel.AuthMode
 import com.avis.app.ptalk.ui.viewmodel.VMAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,7 +58,6 @@ fun SignupScreen(
     vm: VMAuth = viewModel()
 ) {
     val uiState = vm.uiState.collectAsStateWithLifecycle().value
-    vm.setMode(AuthMode.SIGNUP)
 
     var showForgotPassword by remember { mutableStateOf(false) }
     if (showForgotPassword) {

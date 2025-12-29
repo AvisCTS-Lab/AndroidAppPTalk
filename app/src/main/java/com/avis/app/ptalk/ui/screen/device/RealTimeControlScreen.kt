@@ -21,16 +21,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.domain.define.DeviceConnectionStatus
 import com.avis.app.ptalk.domain.model.DeviceState
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
 import com.avis.app.ptalk.ui.component.card.DeviceCard
+import com.avis.app.ptalk.ui.viewmodel.VMRealTimeControl
 
 val mockDeviceState = DeviceState("Tên thiết bị", DeviceConnectionStatus.ONLINE, 23)
 
 @Composable
-fun RealTimeControlScreen(navController: NavController) {
+fun RealTimeControlScreen(
+    navController: NavController,
+    vm: VMRealTimeControl = viewModel()
+) {
+    val uiState = vm.uiState.collectAsStateWithLifecycle().value
+
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -67,25 +75,25 @@ fun RealTimeControlScreen(navController: NavController) {
             ) {
                 Icon(Icons.AutoMirrored.Filled.VolumeDown, contentDescription = "Volume")
                 Slider(
-                    value = 0.5f,
-                    onValueChange = { },
+                    value = uiState.volume,
+                    onValueChange = { vm.setVolume(it) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
             // Toggles
             LabeledSwitchRow(
                 label = "Hiển thị màn hình",
-                checked = true,
-                onCheckedChange = { }
+                checked = uiState.showScreen,
+                onCheckedChange = { vm.toggleShowScreen() }
             )
             LabeledSwitchRow(
                 label = "Khóa thiết bị",
-                checked = false,
-                onCheckedChange = { }
+                checked = uiState.lockDevice,
+                onCheckedChange = { vm.toggleLockDevice() }
             )
             // Destructive action button
             Button(
-                onClick = { /* UI-only: restart action */ },
+                onClick = { vm.restartDevice() },
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
