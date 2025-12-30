@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.domain.device
+package com.avis.app.ptalk.domain.control
 
 import kotlinx.coroutines.flow.Flow
 

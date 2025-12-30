@@ -1,4 +1,4 @@
-package com.avis.app.ptalk.domain.device
+package com.avis.app.ptalk.domain.control
 
 import com.avis.app.ptalk.core.ble.BleSession
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +11,10 @@ class BleControlGateway(private val connector: suspend (String) -> BleSession) :
     override val isConnected: Flow<Boolean> = _connected.asStateFlow()
 
     override suspend fun connect(address: String) {
-        TODO("Not yet implemented")
+        session = connector(address)
+        session!!.isConnected.collect {
+            _connected.value = it
+        }
     }
 
     override suspend fun disconnect() {
