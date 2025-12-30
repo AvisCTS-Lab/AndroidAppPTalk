@@ -1,12 +1,18 @@
 package com.avis.app.ptalk.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.avis.app.ptalk.domain.control.ControlGateway
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
-class VMRealTimeControl : ViewModel() {
+@HiltViewModel
+class VMRealTimeControl @Inject constructor(
+    private val deviceControlGateway: ControlGateway
+) : ViewModel() {
     data class RealTimeUiState(
         val volume: Float = 0.5f,
         val showScreen: Boolean = true,

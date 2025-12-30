@@ -15,7 +15,9 @@ import androidx.navigation.compose.rememberNavController
 import com.avis.app.ptalk.navigation.AppNavGraph
 import com.avis.app.ptalk.ui.component.appbar.MainNavigationBar
 import com.avis.app.ptalk.ui.theme.AndroidPTalkTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

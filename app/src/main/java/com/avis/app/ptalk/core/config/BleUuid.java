@@ -3,7 +3,7 @@ package com.avis.app.ptalk.core.config;
 import java.util.Locale;
 import java.util.UUID;
 
-public class BleUUid {
+public class BleUuid {
     private static UUID u16(int value) {
         return UUID.fromString(String.format(Locale.US, "0000%04X-0000-1000-8000-00805F9B34FB", value));
     }

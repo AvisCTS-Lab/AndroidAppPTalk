@@ -1,11 +1,13 @@
 package com.avis.app.ptalk.domain.model;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "devices")
 public class Device {
     @PrimaryKey()
+    @NonNull
     private String macAddress;
     private String name;
     private String appVersion = null;

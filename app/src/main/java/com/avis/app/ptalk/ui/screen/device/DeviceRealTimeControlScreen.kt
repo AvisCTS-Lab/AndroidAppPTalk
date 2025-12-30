@@ -22,8 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.domain.define.DeviceConnectionStatus
 import com.avis.app.ptalk.domain.model.DeviceState
@@ -36,7 +36,7 @@ val mockDeviceState = DeviceState("Tên thiết bị", DeviceConnectionStatus.ON
 @Composable
 fun RealTimeControlScreen(
     navController: NavController,
-    vm: VMRealTimeControl = viewModel()
+    vm: VMRealTimeControl = hiltViewModel()
 ) {
     val uiState = vm.uiState.collectAsStateWithLifecycle().value
 

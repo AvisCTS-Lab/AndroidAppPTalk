@@ -1,13 +1,19 @@
 package com.avis.app.ptalk.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.avis.app.ptalk.domain.data.local.repo.DeviceRepository
 import com.avis.app.ptalk.domain.define.DeviceConnectionStatus
 import com.avis.app.ptalk.domain.model.DeviceState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class VMDeviceList : ViewModel() {
+@HiltViewModel
+class VMDeviceList @Inject constructor(
+    private val deviceRepo: DeviceRepository
+) : ViewModel() {
     data class DeviceListUiState (
         val devices: List<DeviceState> = emptyList(),
         val isLoading: Boolean = false,
