@@ -16,11 +16,18 @@ import com.avis.app.ptalk.navigation.AppNavGraph
 import com.avis.app.ptalk.ui.component.appbar.MainNavigationBar
 import com.avis.app.ptalk.ui.theme.AndroidPTalkTheme
 import dagger.hilt.android.AndroidEntryPoint
+import org.thingai.base.log.ILog
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        ILog.logLevel = ILog.DEBUG
+        ILog.ENABLE_LOGGING = true
+
+        ILog.d("MainActivity", "onCreate")
+
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()

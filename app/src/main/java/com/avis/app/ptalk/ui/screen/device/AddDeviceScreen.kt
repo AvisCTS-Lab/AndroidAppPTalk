@@ -55,6 +55,7 @@ fun AddDeviceScreen(
 
     var permissionsGranted by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    var isConnected by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -81,7 +82,7 @@ fun AddDeviceScreen(
     }
 
     LoadingDialog(
-        show = false,
+        show = isLoading,
         message = "Đang kết nối với thiết bị",
         onDismiss = {
             isLoading = false
@@ -89,12 +90,18 @@ fun AddDeviceScreen(
     )
 
     EnterWifiInfoDialog(
-        show = isLoading,
+        show = isConnected,
         onDismiss = {
-            isLoading = false
+            vm.disconnectDevice()
+            isConnected = false
         },
         onSubmit = { ssid, pass ->
-
+            isLoading = true
+            isConnected = false
+            vm.connectWifi(ssid, pass) {
+                isLoading = false
+                navController.popBackStack()
+            }
         }
     )
 
@@ -179,8 +186,11 @@ fun AddDeviceScreen(
                     DeviceRow(
                         device = dev,
                         onClick = {
-                            vm.selectDevice(dev.address)
                             isLoading = true
+                            vm.connectDevice(dev.address) {
+                                isConnected = true
+                                isLoading = false
+                            }
                         }
                     )
                 }

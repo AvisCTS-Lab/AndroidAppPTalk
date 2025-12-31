@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withTimeout
+import org.thingai.base.log.ILog
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -41,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Requires BLUETOOTH_SCAN and BLUETOOTH_CONNECT runtime permissions (Android 12+).
  */
 class PTalkBleClient(private val app: Context) : BleClient {
-
+    private val TAG: String = "PTalkBleClient"
     private val sessions = ConcurrentHashMap<String, PTalkBleSession>()
 
     @SuppressLint("MissingPermission")
@@ -66,11 +67,15 @@ class PTalkBleClient(private val app: Context) : BleClient {
                     val d = result.device
                     val item = ScannedDevice(
                         address = d.address,
-                        name = result.scanRecord?.deviceName ?: d.name,
+                        name = result.scanRecord?.deviceName ?: d.name ?: d.address,
                         rssi = result.rssi,
                         hasConfigService = true
                     )
                     devices[d.address] = item
+
+                    ILog.d(TAG, "scanForConfigDevices", "${item.hasConfigService}")
+                    println(TAG + " scanForConfigDevices" + " ${item.hasConfigService}")
+
                     trySend(devices.values.sortedBy { it.name ?: it.address })
                 }
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.avis.app.ptalk.core.ble.BleClient
 import com.avis.app.ptalk.core.ble.ScannedDevice
+import com.avis.app.ptalk.domain.control.ControlGateway
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VMAddDevice @Inject constructor(
-    private val ble: BleClient
+    private val ble: BleClient,
+    private val deviceControlGateway: ControlGateway
 ) : ViewModel() {
 
     data class UiState(
@@ -48,8 +50,34 @@ class VMAddDevice @Inject constructor(
         _ui.value = _ui.value.copy(scanning = false)
     }
 
-    fun selectDevice(address: String) {
-        // For demo, just stop scan; you can navigate to control screen with the address
-        stopScan()
+    fun connectDevice(deviceAddress: String, onConnected: () -> Unit) {
+        viewModelScope.launch {
+            deviceControlGateway.connect(deviceAddress)
+            deviceControlGateway.isConnected.collect { connected ->
+                if (connected) {
+                    onConnected()
+                }
+            }
+        }
+    }
+
+    fun disconnectDevice() {
+        viewModelScope.launch {
+            deviceControlGateway.disconnect()
+        }
+    }
+
+    fun connectWifi(ssid: String, pass: String, onConnected: () -> Unit) {
+        viewModelScope.launch {
+            deviceControlGateway.writeWifiSsid(ssid)
+            deviceControlGateway.writeWifiPass(pass)
+            deviceControlGateway.saveConfig()
+            deviceControlGateway.isConnected.collect { connected ->
+                if (connected) {
+                    onConnected()
+                    disconnectDevice()
+                }
+            }
+        }
     }
 }
