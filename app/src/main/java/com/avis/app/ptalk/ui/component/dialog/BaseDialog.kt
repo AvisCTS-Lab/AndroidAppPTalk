@@ -16,10 +16,10 @@ import com.avis.app.ptalk.ui.custom.DialogPosition.*
 @Composable
 fun BaseDialog(
     onDismiss: () -> Unit,
-    content: @Composable () -> Unit,
     position: DialogPosition,
     modifier: Modifier = Modifier,
     properties: DialogProperties = DialogProperties(),
+    content: @Composable () -> Unit,
 ) {
     BasicAlertDialog(
         modifier = modifier
@@ -39,8 +39,6 @@ fun BaseDialog(
             }
             CENTER -> Unit
         }
-
         content()
-
     }
 }

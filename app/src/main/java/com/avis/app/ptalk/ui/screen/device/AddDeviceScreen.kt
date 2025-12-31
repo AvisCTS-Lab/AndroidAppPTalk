@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
-import androidx.compose.material.icons.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -43,8 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.core.ble.ScannedDevice
-import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
+import com.avis.app.ptalk.ui.component.dialog.EnterWifiInfoDialog
+import com.avis.app.ptalk.ui.component.dialog.LoadingDialog
 import com.avis.app.ptalk.ui.viewmodel.VMAddDevice
 
 @Composable
@@ -55,12 +54,13 @@ fun AddDeviceScreen(
     val uiState by vm.ui.collectAsState()
 
     var permissionsGranted by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
         val granted = result.values.all { it }
         permissionsGranted = granted
-        if (granted) vm.startScan()
     }
 
     fun requestBlePermissions() {
@@ -77,15 +77,26 @@ fun AddDeviceScreen(
 
     // Start scan on launch
     LaunchedEffect(Unit) {
-        // check if previous screen pop back stack then no scan
-        if (navController.previousBackStackEntry != null) {
-            vm.stopScan()
-            return@LaunchedEffect
-        }
-
-        if (!permissionsGranted) requestBlePermissions()
-        else vm.startScan()
+        requestBlePermissions()
     }
+
+    LoadingDialog(
+        show = false,
+        message = "Đang kết nối với thiết bị",
+        onDismiss = {
+            isLoading = false
+        }
+    )
+
+    EnterWifiInfoDialog(
+        show = isLoading,
+        onDismiss = {
+            isLoading = false
+        },
+        onSubmit = { ssid, pass ->
+
+        }
+    )
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -95,36 +106,36 @@ fun AddDeviceScreen(
             onBack = { navController.popBackStack() }
         )
 
-//        if (!permissionsGranted) {
-//            // Info card
-//            Card(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 12.dp, vertical = 8.dp),
-//                colors = CardDefaults.cardColors(
-//                    containerColor = Color(0xFFF8F4E1),
-//                    contentColor = MaterialTheme.colorScheme.scrim
-//                ),
-//                shape = RoundedCornerShape(20.dp),
-//                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-//            ) {
-//                Row(
-//                    verticalAlignment = Alignment.CenterVertically,
-//                    modifier = Modifier.padding(12.dp)
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Warning,
-//                        contentDescription = "Bluetooth",
-//                        modifier = Modifier.size(16.dp)
-//                    )
-//                    Spacer(modifier = Modifier.padding(4.dp))
-//                    Text(
-//                        text = "Bật Bluetooth và cấp quyền để tìm thiết bị",
-//                        style = MaterialTheme.typography.bodyMedium
-//                    )
-//                }
-//            }
-//        }
+        if (!permissionsGranted) {
+            // Info card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF8F4E1),
+                    contentColor = MaterialTheme.colorScheme.scrim
+                ),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "Bluetooth",
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.padding(4.dp))
+                    Text(
+                        text = "Bật Bluetooth và cấp quyền để tìm thiết bị",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.padding(12.dp))
         Text(
@@ -169,8 +180,7 @@ fun AddDeviceScreen(
                         device = dev,
                         onClick = {
                             vm.selectDevice(dev.address)
-                            // Navigate to real-time control screen for demo:
-                            navController.navigate("${Route.REALTIME_CONTROL}?address=${dev.address}")
+                            isLoading = true
                         }
                     )
                 }
@@ -224,7 +234,7 @@ private fun DeviceRow(
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Column(Modifier.padding(12.dp)) {
+        Column(Modifier.padding(16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
