@@ -35,7 +35,7 @@ fun SuccessDialog(
     title: String = "Success",
     message: String? = null,
     position: DialogPosition = DialogPosition.BOTTOM,
-    cancellable: Boolean = true,
+    closeButton: Boolean = false,
     onDismiss: () -> Unit,
     confirmText: String = "OK",
     onConfirm: (() -> Unit)? = null,
@@ -51,8 +51,6 @@ fun SuccessDialog(
         modifier = Modifier.padding(8.dp),
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-            dismissOnBackPress = cancellable,
-            dismissOnClickOutside = cancellable
         ),
     ) {
         Surface(
@@ -119,7 +117,7 @@ fun SuccessDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    if (cancellable) {
+                    if (closeButton) {
                         TextButton(
                             modifier = Modifier.weight(1f),
                             onClick = {

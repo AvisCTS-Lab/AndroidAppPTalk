@@ -7,11 +7,13 @@ import com.avis.app.ptalk.core.ble.ScannedDevice
 import com.avis.app.ptalk.domain.control.ControlGateway
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.thingai.base.log.ILog
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +21,7 @@ class VMAddDevice @Inject constructor(
     private val ble: BleClient,
     private val deviceControlGateway: ControlGateway
 ) : ViewModel() {
+    private val TAG = "VMAddDevice"
 
     data class UiState(
         val scanning: Boolean = false,
@@ -54,8 +57,10 @@ class VMAddDevice @Inject constructor(
         viewModelScope.launch {
             deviceControlGateway.connect(deviceAddress)
             deviceControlGateway.isConnected.collect { connected ->
+                ILog.d(TAG, "connectDevice", "$connected")
                 if (connected) {
                     onConnected()
+                    this.cancel()
                 }
             }
         }
@@ -69,14 +74,14 @@ class VMAddDevice @Inject constructor(
 
     fun connectWifi(ssid: String, pass: String, onConnected: () -> Unit) {
         viewModelScope.launch {
-            deviceControlGateway.writeWifiSsid(ssid)
-            deviceControlGateway.writeWifiPass(pass)
-            deviceControlGateway.saveConfig()
-            deviceControlGateway.isConnected.collect { connected ->
-                if (connected) {
-                    disconnectDevice()
-                    onConnected()
-                }
+            try {
+                deviceControlGateway.writeWifiSsid(ssid)
+                deviceControlGateway.writeWifiPass(pass)
+                deviceControlGateway.saveConfig()
+                onConnected()
+            } catch (e: Exception) {
+                _ui.value = _ui.value.copy(error = e.message)
+                ILog.e(TAG, "connectWifi", e.message)
             }
         }
     }

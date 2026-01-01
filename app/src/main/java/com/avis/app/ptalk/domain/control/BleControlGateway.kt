@@ -6,11 +6,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.thingai.base.log.ILog
 import java.util.UUID
 
 /**
@@ -23,6 +23,7 @@ import java.util.UUID
 class BleControlGateway(
     private val connector: suspend (String) -> BleSession
 ) : ControlGateway {
+    private val TAG = "BleControlGateway"
 
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -37,15 +38,22 @@ class BleControlGateway(
         session = connector(address)
 
         // Re-collect connection state
-        connectionJob?.cancel()
-        connectionJob = scope.launch {
-            requireSession().isConnected.collect { ok ->
-                _connected.value = ok
+        try {
+            connectionJob?.cancel()
+            connectionJob = scope.launch {
+                requireSession().isConnected.collect { ok ->
+                    ILog.d(TAG, "connect $address", "$ok")
+                    _connected.value = ok
+                }
             }
+        } catch (e: Exception) {
+            ILog.e(TAG, "connect failed", e.message)
+            disconnect()
         }
     }
 
     override suspend fun disconnect() {
+        ILog.d(TAG, "disconnect")
         connectionJob?.cancel()
         connectionJob = null
         session?.close()

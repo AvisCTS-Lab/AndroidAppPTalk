@@ -13,15 +13,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,7 +46,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.avis.app.ptalk.ui.custom.DialogPosition
 
 @Composable
-fun EnterWifiInfoDialog(
+fun EnterDeviceConfigDialog(
     show: Boolean,
     position: DialogPosition = DialogPosition.BOTTOM,
     onDismiss: () -> Unit = {},
@@ -58,11 +60,12 @@ fun EnterWifiInfoDialog(
     var wifiSsid by remember { mutableStateOf("") }
     var wifiPass by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var volume by remember { mutableStateOf(0.5f) }
+    var brightness by remember { mutableStateOf(0.5f) }
 
     fun togglePasswordVisibility() {
         isPasswordVisible = !isPasswordVisible
     }
-
 
     BaseDialog(
         onDismiss = onDismiss,
@@ -89,7 +92,7 @@ fun EnterWifiInfoDialog(
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     Text(
-                        text = "Kết nối thiết bị với WiFi",
+                        text = "Thiết lâp tùy chỉnh thiết bị",
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.align(Alignment.CenterStart)
                     )
@@ -112,7 +115,6 @@ fun EnterWifiInfoDialog(
                     text = "Tên WiFi",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
                 )
-
                 OutlinedTextField(
                     value = wifiSsid,
                     onValueChange = { wifiSsid = it },
@@ -133,7 +135,7 @@ fun EnterWifiInfoDialog(
 
                 // Wifi pass
                 Text(
-                    text = "Tên WiFi",
+                    text = "Mật khẩu WiFi",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
                 )
                 OutlinedTextField(
@@ -154,6 +156,32 @@ fun EnterWifiInfoDialog(
                     },
                     shape = RoundedCornerShape(20.dp),
                 )
+
+                Text("Âm lượng", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.VolumeDown, contentDescription = "Volume")
+                    Slider(
+                        value = volume,
+                        onValueChange = { volume = it },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                Text("Độ sáng màn hình", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Filled.BrightnessMedium, contentDescription = "Volume")
+                    Slider(
+                        value = brightness,
+                        onValueChange = { brightness = it },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -177,7 +205,7 @@ fun EnterWifiInfoDialog(
                         },
                         modifier = Modifier.weight(1f),
                     ) {
-                        Text("Kết nối")
+                        Text("Lưu tùy chỉnh")
                     }
                 }
             }

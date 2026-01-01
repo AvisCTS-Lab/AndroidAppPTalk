@@ -42,7 +42,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.core.ble.ScannedDevice
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
-import com.avis.app.ptalk.ui.component.dialog.EnterWifiInfoDialog
+import com.avis.app.ptalk.ui.component.dialog.EnterDeviceConfigDialog
 import com.avis.app.ptalk.ui.component.dialog.ErrorDialog
 import com.avis.app.ptalk.ui.component.dialog.LoadingDialog
 import com.avis.app.ptalk.ui.component.dialog.SuccessDialog
@@ -86,7 +86,7 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
         onDismiss = { isLoading = false }
     )
 
-    EnterWifiInfoDialog(
+    EnterDeviceConfigDialog(
         show = showWifiDialog,
         onDismiss = {
             vm.disconnectDevice()
@@ -106,10 +106,12 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
     SuccessDialog(
         show = showSuccess,
         title = "Thành công",
-        message = "Thiết bị đã được kết nối với WiFi",
+        message = "Thiết lập thiết bị thành công",
+        confirmText = "Hoàn thành",
         onDismiss = {
             vm.disconnectDevice()
             showSuccess = false
+            showWifiDialog = false
         }
     )
 

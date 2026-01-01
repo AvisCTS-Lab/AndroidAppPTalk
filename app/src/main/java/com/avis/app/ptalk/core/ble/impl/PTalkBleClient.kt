@@ -103,8 +103,16 @@ class PTalkBleClient(private val app: Context) : BleClient {
     override suspend fun connect(address: String): BleSession {
         // Reuse session if exists
         val existing = sessions[address]
-        if (existing != null) return existing
+        if (existing != null) {
+            ILog.d(TAG, "reuse session", "$address")
+            if (existing.isConnected.value) {
+                existing.close()
+            }
+            existing.connect()
+            return existing
+        }
 
+        ILog.d(TAG, "new session", "$address")
         val manager = app.getSystemService(BluetoothManager::class.java)
             ?: error("BluetoothManager not available")
         val device = manager.adapter?.getRemoteDevice(address)
@@ -130,6 +138,7 @@ private class PTalkBleSession(
     private val app: Context,
     private val device: BluetoothDevice
 ) : BleSession, BluetoothGattCallback() {
+    private val TAG = "PTalkBleSession"
 
     private var gatt: BluetoothGatt? = null
     private val _connected = MutableStateFlow(false)
@@ -146,16 +155,23 @@ private class PTalkBleSession(
 
     @SuppressLint("MissingPermission")
     suspend fun connect() {
+        ILog.d(TAG, "connect")
         gatt = device.connectGatt(app, false, this, BluetoothDevice.TRANSPORT_LE)
         // Wait until services discovered before allowing ops
         // Optional timeout to avoid deadlocks
-        withTimeout(15_000) { servicesReady.await() }
+        withTimeout(5_000) {
+            ILog.d(TAG, "wait timeout")
+            servicesReady.await()
+        }
     }
 
     @SuppressLint("MissingPermission")
     override suspend fun close() {
+        ILog.d(TAG, "close")
         try {
             gatt?.disconnect()
+        } catch (e: Exception) {
+            ILog.e(TAG, e.message)
         } finally {
             gatt?.close()
             gatt = null
@@ -227,6 +243,7 @@ private class PTalkBleSession(
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+        ILog.d(TAG, "onConnectionStateChange", "$newState")
         _connected.value = (newState == BluetoothProfile.STATE_CONNECTED)
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             gatt.discoverServices()
