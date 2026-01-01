@@ -74,8 +74,8 @@ class VMAddDevice @Inject constructor(
             deviceControlGateway.saveConfig()
             deviceControlGateway.isConnected.collect { connected ->
                 if (connected) {
-                    onConnected()
                     disconnectDevice()
+                    onConnected()
                 }
             }
         }

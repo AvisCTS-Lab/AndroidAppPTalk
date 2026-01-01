@@ -1,5 +1,6 @@
 package com.avis.app.ptalk.core.ble.impl
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
@@ -14,7 +15,10 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.os.Build
 import android.os.ParcelUuid
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import com.avis.app.ptalk.core.ble.BleClient
 import com.avis.app.ptalk.core.ble.BleSession
 import com.avis.app.ptalk.core.config.BleUuid
@@ -35,7 +39,7 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Production-ready BLE client using Android Bluetooth LE stack.
+ * PTalk BLE client for device init configuration
  * - Scans for devices exposing the config service (BleUuid.SVC_CONFIG)
  * - Connects and exposes a session for read/write/notifications
  *
@@ -74,7 +78,6 @@ class PTalkBleClient(private val app: Context) : BleClient {
                     devices[d.address] = item
 
                     ILog.d(TAG, "scanForConfigDevices", "${item.hasConfigService}")
-                    println(TAG + " scanForConfigDevices" + " ${item.hasConfigService}")
 
                     trySend(devices.values.sortedBy { it.name ?: it.address })
                 }
@@ -84,6 +87,7 @@ class PTalkBleClient(private val app: Context) : BleClient {
                 }
 
                 override fun onScanFailed(errorCode: Int) {
+                    ILog.d(TAG, "onScanFailed", "$errorCode")
                     trySend(emptyList())
                 }
             }
@@ -113,6 +117,7 @@ class PTalkBleClient(private val app: Context) : BleClient {
     }
 
     override suspend fun disconnect(address: String) {
+        ILog.d(TAG, "disconnect", "$address")
         sessions.remove(address)?.close()
     }
 }
@@ -200,6 +205,7 @@ private class PTalkBleSession(
     }
 
     // Notification flow for a characteristic
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     override fun notifications(uuid: UUID): Flow<ByteArray> {
         val ch = findCharacteristic(uuid) ?: error("Characteristic $uuid not found")
@@ -219,6 +225,7 @@ private class PTalkBleSession(
 
     // BluetoothGattCallback implementations
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         _connected.value = (newState == BluetoothProfile.STATE_CONNECTED)
         if (newState == BluetoothProfile.STATE_CONNECTED) {

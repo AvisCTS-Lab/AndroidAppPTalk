@@ -43,19 +43,20 @@ import androidx.navigation.NavController
 import com.avis.app.ptalk.core.ble.ScannedDevice
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
 import com.avis.app.ptalk.ui.component.dialog.EnterWifiInfoDialog
+import com.avis.app.ptalk.ui.component.dialog.ErrorDialog
 import com.avis.app.ptalk.ui.component.dialog.LoadingDialog
+import com.avis.app.ptalk.ui.component.dialog.SuccessDialog
 import com.avis.app.ptalk.ui.viewmodel.VMAddDevice
 
 @Composable
-fun AddDeviceScreen(
-    navController: NavController,
-    vm: VMAddDevice = hiltViewModel()
-) {
+fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewModel()) {
     val uiState by vm.ui.collectAsState()
 
     var permissionsGranted by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-    var isConnected by remember { mutableStateOf(false) }
+    var showWifiDialog by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
+    var showSuccess by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -77,37 +78,52 @@ fun AddDeviceScreen(
     }
 
     // Start scan on launch
-    LaunchedEffect(Unit) {
-        requestBlePermissions()
-    }
+    LaunchedEffect(Unit) { requestBlePermissions() }
 
     LoadingDialog(
         show = isLoading,
         message = "Đang kết nối với thiết bị",
-        onDismiss = {
-            isLoading = false
-        }
+        onDismiss = { isLoading = false }
     )
 
     EnterWifiInfoDialog(
-        show = isConnected,
+        show = showWifiDialog,
         onDismiss = {
             vm.disconnectDevice()
-            isConnected = false
+            showWifiDialog = false
         },
         onSubmit = { ssid, pass ->
             isLoading = true
-            isConnected = false
+            showWifiDialog = false
             vm.connectWifi(ssid, pass) {
                 isLoading = false
-                navController.popBackStack()
+                showWifiDialog = false
+                showSuccess = true
             }
         }
     )
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    SuccessDialog(
+        show = showSuccess,
+        title = "Thành công",
+        message = "Thiết bị đã được kết nối với WiFi",
+        onDismiss = {
+            vm.disconnectDevice()
+            showSuccess = false
+        }
+    )
+
+    ErrorDialog(
+        show = showError,
+        title = "Lỗi",
+        message = "Không thể kết nối với thiết bị",
+        onDismiss = {
+            vm.disconnectDevice()
+            showError = false
+        }
+    )
+
+    Column(modifier = Modifier.fillMaxWidth()) {
         BaseTopAppBar(
             title = "Thêm thiết bị",
             onBack = { navController.popBackStack() }
@@ -187,8 +203,9 @@ fun AddDeviceScreen(
                         device = dev,
                         onClick = {
                             isLoading = true
+                            vm.stopScan()
                             vm.connectDevice(dev.address) {
-                                isConnected = true
+                                showWifiDialog = true
                                 isLoading = false
                             }
                         }
