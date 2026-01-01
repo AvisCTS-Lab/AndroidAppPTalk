@@ -263,10 +263,11 @@ private class PTalkBleSession(
     override fun onCharacteristicRead(
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic,
+        value: ByteArray,
         status: Int
     ) {
-        val data = characteristic.value ?: ByteArray(0)
-        pendingRead?.complete(data)
+        gatt.readCharacteristic(characteristic)
+        pendingRead?.complete(value)
         pendingRead = null
     }
 
@@ -281,10 +282,11 @@ private class PTalkBleSession(
 
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic
+        characteristic: BluetoothGattCharacteristic,
+        value: ByteArray
     ) {
-        val data = characteristic.value ?: return
-        notifyChannel.trySend(data)
+        gatt.readCharacteristic(characteristic)
+        notifyChannel.trySend(value)
     }
 
     private fun getConfigService(): BluetoothGattService? {
