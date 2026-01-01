@@ -56,6 +56,7 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
     var isLoading by remember { mutableStateOf(false) }
     var showWifiDialog by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
     var showSuccess by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -92,14 +93,21 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
             vm.disconnectDevice()
             showWifiDialog = false
         },
-        onSubmit = { ssid, pass ->
+        onSubmit = { ssid, pass, volume, brightness ->
             isLoading = true
             showWifiDialog = false
-            vm.connectWifi(ssid, pass) {
-                isLoading = false
-                showWifiDialog = false
-                showSuccess = true
-            }
+            vm.configDeviceOnConnect(ssid, pass, volume, brightness, object : VMAddDevice.DeviceConfigCallback {
+                override fun onConfigSaved() {
+                    isLoading = false
+                    showSuccess = true
+                }
+
+                override fun onConfigError(error: String) {
+                    isLoading = false
+                    showError = true
+                    errorMessage = error
+                }
+            })
         }
     )
 

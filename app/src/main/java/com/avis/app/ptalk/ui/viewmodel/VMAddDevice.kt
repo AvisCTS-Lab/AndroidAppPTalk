@@ -85,4 +85,33 @@ class VMAddDevice @Inject constructor(
             }
         }
     }
+
+    fun configDeviceOnConnect(
+        ssid: String, pass: String,
+        volume: Float, brightness: Float, callback: DeviceConfigCallback)
+    {
+        viewModelScope.launch {
+            try {
+                deviceControlGateway.writeWifiSsid(ssid)
+                deviceControlGateway.writeWifiPass(pass)
+                deviceControlGateway.writeVolume(volume.toInt())
+                deviceControlGateway.writeBrightness(brightness.toInt())
+                deviceControlGateway.saveConfig()
+                callback.onConfigSaved()
+            } catch (e: Exception) {
+                ILog.e(TAG, "configDeviceOnConnect", e.message)
+                callback.onConfigError(e.message ?: "")
+            }
+        }
+    }
+
+    interface DeviceConnectionCallback {
+        fun onDeviceConnected(deviceAddress: String)
+        fun onDeviceDisconnected(deviceAddress: String)
+    }
+
+    interface DeviceConfigCallback {
+        fun onConfigSaved()
+        fun onConfigError(error: String)
+    }
 }

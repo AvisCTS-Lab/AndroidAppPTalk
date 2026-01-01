@@ -118,25 +118,16 @@ fun ErrorDialog(
                 // Actions
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    TextButton(
-                        onClick = {
-                            focusManager.clearFocus()
-                            keyboardController?.hide()
-                            onDismiss()
-                        }
-                    ) {
-                        Text("Dismiss")
-                    }
-                    Spacer(Modifier.size(8.dp))
                     if (onRetry != null) {
                         Button(
                             onClick = {
                                 focusManager.clearFocus()
                                 keyboardController?.hide()
                                 onRetry()
-                            }
+                            },
+                            modifier = Modifier.weight(1f)
                         ) {
                             Text(retryText)
                         }
@@ -146,13 +137,15 @@ fun ErrorDialog(
                                 focusManager.clearFocus()
                                 keyboardController?.hide()
                                 onDismiss()
-                            }
+                            },
+                            modifier = Modifier.weight(1f)
                         ) {
                             Text(confirmText)
                         }
                     }
                 }
             }
+
         }
     }
 }

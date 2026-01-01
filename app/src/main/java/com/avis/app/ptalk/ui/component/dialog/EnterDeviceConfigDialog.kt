@@ -50,7 +50,7 @@ fun EnterDeviceConfigDialog(
     show: Boolean,
     position: DialogPosition = DialogPosition.BOTTOM,
     onDismiss: () -> Unit = {},
-    onSubmit: (String, String) -> Unit = { _, _ -> }
+    onSubmit: (String, String, Float, Float) -> Unit = { _, _, _, _ -> }
 ) {
     if (!show) return
 
@@ -201,7 +201,7 @@ fun EnterDeviceConfigDialog(
                         onClick = {
                             focusManager.clearFocus()
                             keyboardController?.hide()
-                            onSubmit(wifiSsid, wifiPass)
+                            onSubmit(wifiSsid, wifiPass, volume, brightness)
                         },
                         modifier = Modifier.weight(1f),
                     ) {
