@@ -34,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.StatusDot
@@ -123,7 +122,7 @@ fun DeviceListScreen(
             )
             IconButton (
                 onClick = {
-                    navController.navigate(Route.ADD_DEVICE)
+                    navController.navigate(Route.DEVICE_ADDDEVICE)
                 },
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Thêm thiết bị")

@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.domain.model.DeviceChatLog
 import com.avis.app.ptalk.domain.util.DateTimeUtil
+import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
 import com.avis.app.ptalk.ui.viewmodel.VMDeviceChatLog
 import java.time.LocalDate
@@ -106,7 +107,9 @@ fun DeviceChatLogScreen(
                     items(items = dates, key = { it.toString() }) { date ->
                         DateRow(
                             label = formatDate(date),
-                            onClick = { }
+                            onClick = {
+                                navController.navigate(Route.DEVICE_CHATDETAIL)
+                            }
                         )
                     }
                 }
