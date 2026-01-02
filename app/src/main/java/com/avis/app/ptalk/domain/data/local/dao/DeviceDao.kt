@@ -15,7 +15,7 @@ interface DeviceDao {
     @Query("SELECT * FROM devices WHERE macAddress = :address LIMIT 1")
     suspend fun get(address: String): Device?
 
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(device: Device)
 
     @Query("DELETE FROM devices WHERE macAddress = :address")

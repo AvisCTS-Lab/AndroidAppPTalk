@@ -1,5 +1,6 @@
 package com.avis.app.ptalk.ui.viewmodel
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -50,6 +51,16 @@ class VMAuth : ViewModel() {
     }
 
     fun login() {
+//        val current = _uiState.value
+//
+//        if (!validateEmail(current.username)) return
+//        if (!validatePassword(current.password)) return
+//
+//        if (current.username != "avis@cts.com" || current.password != "Avis@2026") {
+//            emitEvent(AuthEvent.ShowError("Email hoặc mật khẩu không đúng"))
+//            return
+//        }
+
         emitEvent(AuthEvent.LoginSuccess)
     }
 
@@ -61,5 +72,33 @@ class VMAuth : ViewModel() {
         viewModelScope.launch {
             _events.send(event)
         }
+    }
+
+    private fun validateEmail(email: String): Boolean {
+        if (email.isEmpty()) {
+            _uiState.value = _uiState.value.copy(errorMessage = "Email không được để trống")
+            return false;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _uiState.value = _uiState.value.copy(errorMessage = "Email không hợp lệ")
+            return false;
+        }
+
+        return true;
+    }
+
+    private fun validatePassword(password: String): Boolean {
+        if (password.isEmpty()) {
+            _uiState.value = _uiState.value.copy(errorMessage = "Mật khẩu không được để trống")
+            return false
+        }
+
+        if (password.length < 6) {
+            _uiState.value = _uiState.value.copy(errorMessage = "Mật khẩu phải có ít nhất 6 ký tự")
+            return false
+        }
+
+        return true
     }
 }

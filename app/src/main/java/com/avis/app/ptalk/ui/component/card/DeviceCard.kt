@@ -30,11 +30,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.avis.app.ptalk.domain.define.DeviceConnectionStatus
+import com.avis.app.ptalk.domain.model.Device
 import com.avis.app.ptalk.domain.model.DeviceState
 import com.avis.app.ptalk.ui.component.StatusDot
 
 @Composable
-fun DeviceCard(device: DeviceState, onClick: () -> Unit = {}) {
+fun DeviceCard(device: Device, onClick: () -> Unit = {}) {
     Card(
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
@@ -55,21 +56,23 @@ fun DeviceCard(device: DeviceState, onClick: () -> Unit = {}) {
             ) { /* image placeholder */ }
 
             Spacer(Modifier.height(8.dp))
-            Text(device.label, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
+            Text(device.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                val statusColor = when (device.status) {
-                    DeviceConnectionStatus.ONLINE -> Color(0xFF2ECC71)
-                    DeviceConnectionStatus.OFFLINE -> Color.Red
-                    DeviceConnectionStatus.SLEEP -> Color(0xFF999999)
-                }
+//                val statusColor = when (device.status) {
+//                    DeviceConnectionStatus.ONLINE -> Color(0xFF2ECC71)
+//                    DeviceConnectionStatus.OFFLINE -> Color.Red
+//                    DeviceConnectionStatus.SLEEP -> Color(0xFF999999)
+//                }
+                val statusColor = Color(0xFF2ECC71)
                 StatusDot(color = statusColor)
                 Spacer(Modifier.padding(4.dp))
                 Text(
-                    when (device.status) {
-                        DeviceConnectionStatus.ONLINE -> "Online"
-                        DeviceConnectionStatus.OFFLINE -> "Offline"
-                        DeviceConnectionStatus.SLEEP -> "Sleep"
-                    },
+//                    when (device.status) {
+//                        DeviceConnectionStatus.ONLINE -> "Online"
+//                        DeviceConnectionStatus.OFFLINE -> "Offline"
+//                        DeviceConnectionStatus.SLEEP -> "Sleep"
+//                    },
+                    "Online",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -98,10 +101,10 @@ fun DeviceCard(device: DeviceState, onClick: () -> Unit = {}) {
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "${device.lastSeenMinutes}min",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+//                    Text(
+//                        text = "${device.lastSeenMinutes}min",
+//                        style = MaterialTheme.typography.bodySmall,
+//                    )
                 }
 
             }

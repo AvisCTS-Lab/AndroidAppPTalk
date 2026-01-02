@@ -29,15 +29,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
+import com.avis.app.ptalk.ui.viewmodel.share.ShareVMDevice
 
 @Composable
-fun DeviceDetailScreen(navController: NavController) {
+fun DeviceDetailScreen(navController: NavController, shareVMDevice: ShareVMDevice) {
+    val device = if (shareVMDevice.device.value != null) {
+        shareVMDevice.device.value!!.name
+    } else {
+        "PTalk Device"
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
         BaseTopAppBar(
-            title = "Tên thiết bị",
+            title = device,
             onBack = { navController.popBackStack() }
         )
         Spacer(modifier = Modifier.padding(12.dp))

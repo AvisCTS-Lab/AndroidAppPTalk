@@ -13,7 +13,7 @@ public class Device {
     private String appVersion = null;
     private String buildInfo = null;
 
-    public Device(String macAddress, String name) {
+    public Device(String name, @NonNull String macAddress) {
         this.macAddress = macAddress;
         this.name = name;
     }
@@ -22,7 +22,7 @@ public class Device {
         return macAddress;
     }
 
-    public void setMacAddress(String macAddress) {
+    public void setMacAddress(@NonNull String macAddress) {
         this.macAddress = macAddress;
     }
 

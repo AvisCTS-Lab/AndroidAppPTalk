@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.avis.app.ptalk.core.ble.BleClient
 import com.avis.app.ptalk.core.ble.ScannedDevice
 import com.avis.app.ptalk.domain.control.ControlGateway
+import com.avis.app.ptalk.domain.data.local.repo.DeviceRepository
+import com.avis.app.ptalk.domain.model.Device
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -19,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class VMAddDevice @Inject constructor(
     private val ble: BleClient,
-    private val deviceControlGateway: ControlGateway
+    private val deviceControlGateway: ControlGateway,
+    private val deviceRepository: DeviceRepository
 ) : ViewModel() {
     private val TAG = "VMAddDevice"
 
@@ -33,6 +36,8 @@ class VMAddDevice @Inject constructor(
     val ui = _ui.asStateFlow()
 
     private var scanJob: Job? = null
+
+    private var deviceAddress: String? = null
 
     fun startScan() {
         // Cancel any existing scan subscription
@@ -54,6 +59,7 @@ class VMAddDevice @Inject constructor(
     }
 
     fun connectDevice(deviceAddress: String, onConnected: () -> Unit) {
+        this.deviceAddress = deviceAddress
         viewModelScope.launch {
             deviceControlGateway.connect(deviceAddress)
             deviceControlGateway.isConnected.collect { connected ->
@@ -69,6 +75,7 @@ class VMAddDevice @Inject constructor(
     fun disconnectDevice() {
         viewModelScope.launch {
             deviceControlGateway.disconnect()
+            deviceAddress = null
         }
     }
 
@@ -96,10 +103,20 @@ class VMAddDevice @Inject constructor(
                 deviceControlGateway.writeWifiPass(pass)
                 deviceControlGateway.writeVolume(volume.toInt())
                 deviceControlGateway.writeBrightness(brightness.toInt())
+
+                val device = Device("PTalk Device", deviceAddress!!)
+                device.appVersion = deviceControlGateway.readAppVersion()
+                device.buildInfo = deviceControlGateway.readBuildInfo()
+                deviceRepository.upsert(device)
+
+                ILog.d(TAG, "configDeviceOnConnect", deviceControlGateway.readWifiSsid())
+
                 deviceControlGateway.saveConfig()
+
+
                 callback.onConfigSaved()
             } catch (e: Exception) {
-                ILog.e(TAG, "configDeviceOnConnect", e.message)
+                ILog.d(TAG, "configDeviceOnConnect", e.message)
                 callback.onConfigError(e.message ?: "")
             }
         }

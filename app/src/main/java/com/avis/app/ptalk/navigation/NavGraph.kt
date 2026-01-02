@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,11 +15,15 @@ import com.avis.app.ptalk.ui.screen.device.DeviceChatLogScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceDetailScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceListScreen
 import com.avis.app.ptalk.ui.screen.device.RealTimeControlScreen
+import com.avis.app.ptalk.ui.viewmodel.share.ShareVMDevice
 
 const val ANIM_DURATION = 300
 
 @Composable
 fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
+    val shareVMDevice = viewModel<ShareVMDevice>()
+
+
     NavHost(
         navController = navController,
         startDestination = Route.LOGIN,
@@ -51,10 +56,10 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier)
     ) {
         composable(Route.LOGIN) { LoginScreen(navController) }
         composable(Route.SIGNUP) { SignupScreen(navController) }
-        composable(Route.DEVICE) { DeviceListScreen(navController) }
+        composable(Route.DEVICE) { DeviceListScreen(navController, shareVMDevice) }
         composable(Route.ADD_DEVICE) { AddDeviceScreen(navController) }
-        composable(Route.DEVICE_DETAIL) { DeviceDetailScreen(navController) }
-        composable(Route.REALTIME_CONTROL) { RealTimeControlScreen(navController) }
+        composable(Route.DEVICE_DETAIL) { DeviceDetailScreen(navController, shareVMDevice) }
+        composable(Route.REALTIME_CONTROL) { RealTimeControlScreen(navController, shareVMDevice) }
         composable(Route.DEVICE_CHATLOG) { DeviceChatLogScreen(navController) }
     }
 }

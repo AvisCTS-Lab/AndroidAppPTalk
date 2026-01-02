@@ -40,10 +40,12 @@ import com.avis.app.ptalk.navigation.Route
 import com.avis.app.ptalk.ui.component.StatusDot
 import com.avis.app.ptalk.ui.component.card.DeviceCard
 import com.avis.app.ptalk.ui.viewmodel.VMDeviceList
+import com.avis.app.ptalk.ui.viewmodel.share.ShareVMDevice
 
 @Composable
 fun DeviceListScreen(
     navController: NavController,
+    shareVMDevice: ShareVMDevice,
     vm: VMDeviceList = hiltViewModel()
 ) {
     val uiState = vm.uiState.collectAsStateWithLifecycle().value
@@ -83,7 +85,7 @@ fun DeviceListScreen(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = "Username",
+                    text = "Avis-CTS",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -140,7 +142,10 @@ fun DeviceListScreen(
             items(uiState.devices.size) { index ->
                 DeviceCard(
                     device = uiState.devices[index],
-                    onClick = { navController.navigate(Route.DEVICE_DETAIL) }
+                    onClick = {
+                        shareVMDevice.setDevice(uiState.devices[index])
+                        navController.navigate(Route.DEVICE_DETAIL)
+                    }
                 )
             }
         }

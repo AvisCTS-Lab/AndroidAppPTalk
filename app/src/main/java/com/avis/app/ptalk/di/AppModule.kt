@@ -9,6 +9,7 @@ import com.avis.app.ptalk.domain.control.ControlGateway
 import com.avis.app.ptalk.domain.data.local.AppDatabase
 import com.avis.app.ptalk.domain.data.local.dao.DeviceDao
 import com.avis.app.ptalk.domain.data.local.repo.AuthRepository
+import com.avis.app.ptalk.domain.data.local.repo.DeviceRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +28,9 @@ object AppModule {
 
     @Provides
     fun provideDeviceDao(db: AppDatabase): DeviceDao = db.deviceDao()
+
+    @Provides @Singleton
+    fun provideDeviceRepository(dao: DeviceDao): DeviceRepository = DeviceRepository(dao)
 
     @Provides @Singleton
     fun provideBle(@ApplicationContext ctx: Context): BleClient = PTalkBleClient(ctx)

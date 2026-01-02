@@ -25,23 +25,21 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.avis.app.ptalk.domain.define.DeviceConnectionStatus
-import com.avis.app.ptalk.domain.model.DeviceState
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
 import com.avis.app.ptalk.ui.component.card.DeviceCard
 import com.avis.app.ptalk.ui.viewmodel.VMRealTimeControl
-
-val mockDeviceState = DeviceState("Tên thiết bị", DeviceConnectionStatus.ONLINE, 23)
+import com.avis.app.ptalk.ui.viewmodel.share.ShareVMDevice
 
 @Composable
 fun RealTimeControlScreen(
     navController: NavController,
-    vm: VMRealTimeControl = hiltViewModel()
+    shareVmDevice: ShareVMDevice,
+    vm: VMRealTimeControl = hiltViewModel(),
 ) {
     val uiState = vm.uiState.collectAsStateWithLifecycle().value
 
     LaunchedEffect(Unit) {
-        vm.getDeviceControlState("mockDeviceId")
+        vm.getDeviceControlState(shareVmDevice.device.value!!.macAddress)
     }
 
     Column(
@@ -63,7 +61,7 @@ fun RealTimeControlScreen(
             Row(
                 modifier = Modifier.fillMaxWidth(0.5f)
             ) {
-                DeviceCard(mockDeviceState)
+                DeviceCard(shareVmDevice.device.value!!)
             }
         }
 
