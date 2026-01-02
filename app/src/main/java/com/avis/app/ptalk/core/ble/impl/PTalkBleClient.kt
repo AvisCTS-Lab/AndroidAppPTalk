@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
+import android.bluetooth.BluetoothStatusCodes
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
@@ -207,11 +208,10 @@ private class PTalkBleSession(
             BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
         else
             BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-        ch.value = value
         val result = CompletableDeferred<Unit>()
         synchronized(opMutex) {
             pendingWrite = result
-            if (!g.writeCharacteristic(ch)) {
+            if (g.writeCharacteristic(ch, value, ch.writeType) != BluetoothStatusCodes.SUCCESS) {
                 pendingWrite = null
                 error("writeCharacteristic returned false for $uuid")
             }
@@ -266,7 +266,6 @@ private class PTalkBleSession(
         value: ByteArray,
         status: Int
     ) {
-        gatt.readCharacteristic(characteristic)
         pendingRead?.complete(value)
         pendingRead = null
     }
