@@ -92,7 +92,7 @@ fun EnterDeviceConfigDialog(
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     Text(
-                        text = "Thiết lâp tùy chỉnh thiết bị",
+                        text = "Thiết lập tùy chỉnh thiết bị",
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.align(Alignment.CenterStart)
                     )
