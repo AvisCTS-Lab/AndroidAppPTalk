@@ -46,7 +46,9 @@ fun DeviceDetailScreen(navController: NavController, shareVMDevice: ShareVMDevic
             FunctionCard(Icons.Filled.MoreHoriz, "Lịch sử trò chuyện", onClick = {
                 navController.navigate(Route.DEVICE_CHATLOG)
             })
-            FunctionCard(Icons.Filled.Info, "Thông tin thiết bị")
+            FunctionCard(Icons.Filled.Info, "Thông tin thiết bị", onClick = {
+                navController.navigate(Route.DEVICE_INFO)
+            })
             FunctionCard(Icons.Filled.Settings, "Cài đặt thiết bị", onClick = {
                 navController.navigate(Route.DEVICE_SETTING)
             })

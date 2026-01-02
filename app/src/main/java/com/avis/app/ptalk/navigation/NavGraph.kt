@@ -14,6 +14,7 @@ import com.avis.app.ptalk.ui.screen.device.AddDeviceScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceChatDetailScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceChatLogScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceDetailScreen
+import com.avis.app.ptalk.ui.screen.device.DeviceInfoScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceListScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceSettingScreen
 import com.avis.app.ptalk.ui.screen.device.RealTimeControlScreen
@@ -64,6 +65,7 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier)
         composable(Route.REALTIME_CONTROL) { RealTimeControlScreen(navController, shareVMDevice) }
         composable(Route.DEVICE_CHATLOG) { DeviceChatLogScreen(navController) }
         composable(Route.DEVICE_CHATDETAIL) { DeviceChatDetailScreen(navController) }
+        composable(Route.DEVICE_INFO) { DeviceInfoScreen(navController, shareVMDevice) }
         composable(Route.DEVICE_SETTING) { DeviceSettingScreen(navController, shareVMDevice) }
     }
 }
