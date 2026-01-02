@@ -4,7 +4,9 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,16 +17,28 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.filled.BrightnessMedium
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,17 +49,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.core.ble.ScannedDevice
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
-import com.avis.app.ptalk.ui.component.dialog.EnterDeviceConfigDialog
+import com.avis.app.ptalk.ui.component.dialog.BaseDialog
 import com.avis.app.ptalk.ui.component.dialog.ErrorDialog
 import com.avis.app.ptalk.ui.component.dialog.LoadingDialog
 import com.avis.app.ptalk.ui.component.dialog.SuccessDialog
+import com.avis.app.ptalk.ui.custom.DialogPosition
 import com.avis.app.ptalk.ui.viewmodel.VMAddDevice
 
 @Composable
@@ -74,6 +95,7 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
             )
         } else {
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
         permissionLauncher.launch(perms)
     }
@@ -120,7 +142,8 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
             vm.disconnectDevice()
             showSuccess = false
             showWifiDialog = false
-        }
+            navController.popBackStack()
+        },
     )
 
     ErrorDialog(
@@ -293,6 +316,174 @@ private fun DeviceRow(
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
+        }
+    }
+}
+
+@Composable
+private fun EnterDeviceConfigDialog(
+    show: Boolean,
+    position: DialogPosition = DialogPosition.BOTTOM,
+    onDismiss: () -> Unit = {},
+    onSubmit: (String, String, Float, Float) -> Unit = { _, _, _, _ -> }
+) {
+    if (!show) return
+
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    var wifiSsid by remember { mutableStateOf("") }
+    var wifiPass by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    var volume by remember { mutableStateOf(0.5f) }
+    var brightness by remember { mutableStateOf(0.5f) }
+
+    fun togglePasswordVisibility() {
+        isPasswordVisible = !isPasswordVisible
+    }
+
+    BaseDialog(
+        onDismiss = onDismiss,
+        position = position,
+        modifier = Modifier.padding(8.dp),
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false, // let content control width
+        ),
+    ) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 8.dp,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Title + Close
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Text(
+                        text = "Thiết lập tùy chỉnh thiết bị",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    )
+                    IconButton(
+                        onClick = {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                            onDismiss()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Close",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                // Wifi Ssid
+                Text(
+                    text = "Tên WiFi",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                )
+                OutlinedTextField(
+                    value = wifiSsid,
+                    onValueChange = { wifiSsid = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Transparent),
+                    placeholder = { Text("Nhập tên WiFi") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    ),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                    }),
+                    shape = RoundedCornerShape(22.dp),
+                )
+
+                // Wifi pass
+                Text(
+                    text = "Mật khẩu WiFi",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                )
+                OutlinedTextField(
+                    value = wifiPass,
+                    onValueChange = { wifiPass = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Nhập mật khẩu") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { togglePasswordVisibility() }) {
+                            Icon(
+                                imageVector = if(isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                contentDescription = "Show password"
+                            )
+                        }
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                )
+
+                Text("Âm lượng", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.VolumeDown, contentDescription = "Volume")
+                    Slider(
+                        value = volume,
+                        onValueChange = { volume = it },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                Text("Độ sáng màn hình", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Filled.BrightnessMedium, contentDescription = "Volume")
+                    Slider(
+                        value = brightness,
+                        onValueChange = { brightness = it },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    TextButton (
+                        onClick = { onDismiss() },
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            "Hủy",
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Button(
+                        onClick = {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                            onSubmit(wifiSsid, wifiPass, volume, brightness)
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text("Lưu tùy chỉnh")
+                    }
+                }
+            }
         }
     }
 }

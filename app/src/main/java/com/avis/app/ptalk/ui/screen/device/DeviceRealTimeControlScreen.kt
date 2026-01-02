@@ -100,8 +100,8 @@ fun RealTimeControlScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFE3E3),   // soft red background
-                    contentColor = Color(0xFFEB5757)      // red text
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
                 )
             ) {
                 Text("Restart thiết bị", style = MaterialTheme.typography.bodyLarge)
