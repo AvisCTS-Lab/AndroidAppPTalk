@@ -109,8 +109,6 @@ class VMAddDevice @Inject constructor(
                 device.buildInfo = deviceControlGateway.readBuildInfo()
                 deviceRepository.upsert(device)
 
-                ILog.d(TAG, "configDeviceOnConnect", deviceControlGateway.readWifiSsid())
-
                 deviceControlGateway.saveConfig()
 
 

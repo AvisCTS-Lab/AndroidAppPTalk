@@ -200,6 +200,7 @@ private class PTalkBleSession(
     }
 
     // Writes a characteristic with or without response
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     override suspend fun write(uuid: UUID, value: ByteArray, withResponse: Boolean): ByteArray {
         val ch = findCharacteristic(uuid) ?: error("Characteristic $uuid not found")
@@ -284,7 +285,6 @@ private class PTalkBleSession(
         characteristic: BluetoothGattCharacteristic,
         value: ByteArray
     ) {
-        gatt.readCharacteristic(characteristic)
         notifyChannel.trySend(value)
     }
 
