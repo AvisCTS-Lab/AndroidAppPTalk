@@ -17,4 +17,5 @@ public class BleUuid {
     public static final UUID CHR_APP_VERSION = u16(0xFF07);
     public static final UUID CHR_BUILD_INFO = u16(0xFF08);
     public static final UUID CHR_SAVE_CMD = u16(0xFF09);
+    public static final UUID CHR_DEVICE_ID = u16(0xFF0A);
 }

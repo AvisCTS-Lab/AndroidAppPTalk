@@ -109,6 +109,10 @@ class BleControlGateway(
         writeByte(BleUuid.CHR_SAVE_CMD, 0x01)
     }
 
+    override suspend fun readDeviceId(): String {
+        return readString(BleUuid.CHR_DEVICE_ID)
+    }
+
     // ---- Helpers ----
 
     private fun requireSession(): BleSession =

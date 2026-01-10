@@ -18,4 +18,5 @@ interface ControlGateway {
     suspend fun readAppVersion(): String
     suspend fun readBuildInfo(): String
     suspend fun saveConfig()
+    suspend fun readDeviceId(): String
 }

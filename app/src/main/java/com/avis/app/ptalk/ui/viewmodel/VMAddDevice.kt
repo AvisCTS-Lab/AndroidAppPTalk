@@ -101,16 +101,15 @@ class VMAddDevice @Inject constructor(
             try {
                 deviceControlGateway.writeWifiSsid(ssid)
                 deviceControlGateway.writeWifiPass(pass)
-                deviceControlGateway.writeVolume(volume.toInt())
-                deviceControlGateway.writeBrightness(brightness.toInt())
+//                deviceControlGateway.writeVolume(volume.toInt())
+//                deviceControlGateway.writeBrightness(brightness.toInt())
 
-                val device = Device("PTalk Device", deviceAddress!!)
+                val device = Device("PTalk Device", deviceControlGateway.readDeviceId())
                 device.appVersion = deviceControlGateway.readAppVersion()
                 device.buildInfo = deviceControlGateway.readBuildInfo()
                 deviceRepository.upsert(device)
 
                 deviceControlGateway.saveConfig()
-
 
                 callback.onConfigSaved()
             } catch (e: Exception) {
