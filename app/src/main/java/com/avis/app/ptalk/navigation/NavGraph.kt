@@ -18,6 +18,9 @@ import com.avis.app.ptalk.ui.screen.device.DeviceInfoScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceListScreen
 import com.avis.app.ptalk.ui.screen.device.DeviceSettingScreen
 import com.avis.app.ptalk.ui.screen.device.RealTimeControlScreen
+import com.avis.app.ptalk.ui.screen.setting.ServerSettingsScreen
+import com.avis.app.ptalk.ui.screen.common.UnderDevelopmentScreen
+import com.avis.app.ptalk.ui.screen.setting.ServerSettingsScreen
 import com.avis.app.ptalk.ui.viewmodel.share.ShareVMDevice
 
 const val ANIM_DURATION = 300
@@ -67,5 +70,11 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier)
         composable(Route.DEVICE_CHATDETAIL) { DeviceChatDetailScreen(navController) }
         composable(Route.DEVICE_INFO) { DeviceInfoScreen(navController, shareVMDevice) }
         composable(Route.DEVICE_SETTING) { DeviceSettingScreen(navController, shareVMDevice) }
+        composable(Route.SERVER_SETTINGS) { ServerSettingsScreen(navController) }
+
+        // Under development screens
+        composable(Route.BAN_KEYWORD) { UnderDevelopmentScreen(navController, "Chặn từ khóa") }
+        composable(Route.ANALYTICS) { UnderDevelopmentScreen(navController, "Thống kê") }
+        composable(Route.SETTING) { UnderDevelopmentScreen(navController, "Cài đặt") }
     }
 }

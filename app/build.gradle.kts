@@ -78,4 +78,10 @@ dependencies {
     ksp("com.google.dagger:hilt-android-compiler:2.57.1")
 
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // OkHttp WebSocket
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Gson for JSON serialization
+    implementation("com.google.code.gson:gson:2.11.0")
 }

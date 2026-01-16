@@ -15,4 +15,7 @@ object Route {
     const val DEVICE_CHATDETAIL: String = "device_chatdetail"
     const val DEVICE_INFO: String = "device_info"
     const val DEVICE_SETTING: String = "device_setting"
+
+    // Server settings
+    const val SERVER_SETTINGS: String = "server_settings"
 }

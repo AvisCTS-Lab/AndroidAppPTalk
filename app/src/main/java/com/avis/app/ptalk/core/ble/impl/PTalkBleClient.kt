@@ -55,12 +55,19 @@ class PTalkBleClient(private val app: Context) : BleClient {
         val manager = app.getSystemService(BluetoothManager::class.java)
             ?: return callbackFlow { trySend(emptyList()); awaitClose {} }
         val adapter = manager.adapter ?: return callbackFlow { trySend(emptyList()); awaitClose {} }
-        val scanner = adapter.bluetoothLeScanner ?: return callbackFlow { trySend(emptyList()); awaitClose {} }
+        val scanner = adapter.bluetoothLeScanner
+            ?: return callbackFlow { trySend(emptyList()); awaitClose {} }
 
         return callbackFlow {
-            val filter = ScanFilter.Builder()
-                .setServiceUuid(ParcelUuid(BleUuid.SVC_CONFIG))
-                .build()
+            // Accept either devices advertising our service UUID or named "PTalk"
+            val filters = listOf(
+                ScanFilter.Builder()
+                    .setServiceUuid(ParcelUuid(BleUuid.SVC_CONFIG))
+                    .build(),
+                ScanFilter.Builder()
+                    .setDeviceName("PTalk")
+                    .build()
+            )
             val settings = ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .build()
@@ -70,15 +77,23 @@ class PTalkBleClient(private val app: Context) : BleClient {
             val cb = object : ScanCallback() {
                 override fun onScanResult(callbackType: Int, result: ScanResult) {
                     val d = result.device
+                    val advertisedUuids =
+                        result.scanRecord?.serviceUuids?.map { it.uuid } ?: emptyList()
+                    val hasSvc = advertisedUuids.contains(BleUuid.SVC_CONFIG)
+                    val isNamePTalk =
+                        (result.scanRecord?.deviceName == "PTalk") || (d.name == "PTalk")
+                    val matches = hasSvc || isNamePTalk
+
+                    if (!matches) return
                     val item = ScannedDevice(
                         address = d.address,
                         name = result.scanRecord?.deviceName ?: d.name ?: d.address,
                         rssi = result.rssi,
-                        hasConfigService = true
+                        hasConfigService = hasSvc || isNamePTalk
                     )
                     devices[d.address] = item
 
-                    ILog.d(TAG, "scanForConfigDevices", "${item.hasConfigService}")
+                    ILog.d(TAG, "scanForConfigDevices", "svc=$hasSvc name=$isNamePTalk")
 
                     trySend(devices.values.sortedBy { it.name ?: it.address })
                 }
@@ -93,7 +108,7 @@ class PTalkBleClient(private val app: Context) : BleClient {
                 }
             }
 
-            scanner.startScan(listOf(filter), settings, cb)
+            scanner.startScan(filters, settings, cb)
             awaitClose { scanner.stopScan(cb) }
         }
             .onStart { emit(emptyList()) }
@@ -200,7 +215,6 @@ private class PTalkBleSession(
     }
 
     // Writes a characteristic with or without response
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     override suspend fun write(uuid: UUID, value: ByteArray, withResponse: Boolean): ByteArray {
         val ch = findCharacteristic(uuid) ?: error("Characteristic $uuid not found")
@@ -212,7 +226,15 @@ private class PTalkBleSession(
         val result = CompletableDeferred<Unit>()
         synchronized(opMutex) {
             pendingWrite = result
-            if (g.writeCharacteristic(ch, value, ch.writeType) != BluetoothStatusCodes.SUCCESS) {
+            val success = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                g.writeCharacteristic(ch, value, ch.writeType) == BluetoothStatusCodes.SUCCESS
+            } else {
+                @Suppress("DEPRECATION")
+                ch.value = value
+                @Suppress("DEPRECATION")
+                g.writeCharacteristic(ch)
+            }
+            if (!success) {
                 pendingWrite = null
                 error("writeCharacteristic returned false for $uuid")
             }
@@ -280,11 +302,13 @@ private class PTalkBleSession(
         pendingWrite = null
     }
 
+    @SuppressLint("MissingPermission")
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic,
         value: ByteArray
     ) {
+        gatt.readCharacteristic(characteristic)
         notifyChannel.trySend(value)
     }
 

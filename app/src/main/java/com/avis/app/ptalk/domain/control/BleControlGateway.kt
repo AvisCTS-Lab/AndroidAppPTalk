@@ -85,10 +85,7 @@ class BleControlGateway(
         writeBytePercent(BleUuid.CHR_BRIGHTNESS, value)
     }
 
-    // WiFi
-    override suspend fun readWifiSsid(): String =
-        readString(BleUuid.CHR_WIFI_SSID)
-
+    // WiFi (write-only per ESP32 config)
     override suspend fun writeWifiSsid(value: String) {
         writeString(BleUuid.CHR_WIFI_SSID, value)
     }
@@ -99,18 +96,80 @@ class BleControlGateway(
 
     // Metadata (read-only)
     override suspend fun readAppVersion(): String =
-        readString(BleUuid.CHR_APP_VERSION)
+        cleanDuplicatedString(readString(BleUuid.CHR_APP_VERSION))
 
     override suspend fun readBuildInfo(): String =
-        readString(BleUuid.CHR_BUILD_INFO)
+        cleanDuplicatedString(readString(BleUuid.CHR_BUILD_INFO))
+
+    /**
+     * Clean duplicated string data from BLE characteristic.
+     * ESP32 sometimes sends the same value multiple times concatenated.
+     * Example: "PTalk-V1 (Jan 13 2026)PTalk-V1 (Jan 13 2026)..." -> "PTalk-V1 (Jan 13 2026)"
+     */
+    private fun cleanDuplicatedString(input: String): String {
+        if (input.isBlank()) return input
+
+        // Try to find repeating pattern
+        val trimmed = input.trim()
+
+        // Check for common patterns like "PTalk-V1 (..."
+        val patterns = listOf("PTalk", "V1", "(")
+        for (pattern in patterns) {
+            val firstIdx = trimmed.indexOf(pattern)
+            if (firstIdx >= 0) {
+                val secondIdx = trimmed.indexOf(pattern, firstIdx + 1)
+                if (secondIdx > firstIdx) {
+                    // Found repetition, extract first occurrence
+                    return trimmed.substring(0, secondIdx).trim()
+                }
+            }
+        }
+
+        // Fallback: if string is very long, try to detect repeating by finding first ")"
+        val closeParen = trimmed.indexOf(")")
+        if (closeParen > 0 && closeParen < trimmed.length - 1) {
+            val potentialUnit = trimmed.substring(0, closeParen + 1)
+            if (trimmed.contains(potentialUnit + potentialUnit.take(5))) {
+                return potentialUnit.trim()
+            }
+        }
+
+        return trimmed
+    }
 
     // Persist current config on device
     override suspend fun saveConfig() {
         writeByte(BleUuid.CHR_SAVE_CMD, 0x01)
     }
 
-    override suspend fun readDeviceId(): String {
-        return readString(BleUuid.CHR_DEVICE_ID)
+    // Device ID (read-only)
+    override suspend fun readDeviceId(): String =
+        readString(BleUuid.CHR_DEVICE_ID)
+
+    // WiFi list (streaming read until "END", max 50 networks)
+    override suspend fun readWifiList(): List<WifiNetwork> {
+        val networks = mutableListOf<WifiNetwork>()
+        val maxNetworks = 50 // Safety limit
+
+        repeat(maxNetworks) {
+            val response = try {
+                readString(BleUuid.CHR_WIFI_LIST)
+            } catch (e: Exception) {
+                ILog.e(TAG, "readWifiList read failed", e.message)
+                return networks
+            }
+
+            if (response == "END" || response.isEmpty()) return networks
+
+            // Parse format: "SSID:RSSI" (e.g., "B14-PTIT:-49")
+            val parts = response.split(":")
+            if (parts.size >= 2) {
+                val rssi = parts.last().toIntOrNull() ?: -100
+                val ssid = parts.dropLast(1).joinToString(":")
+                networks.add(WifiNetwork(ssid, rssi))
+            }
+        }
+        return networks
     }
 
     // ---- Helpers ----

@@ -10,6 +10,7 @@ public class Device {
     @NonNull
     private String macAddress;
     private String name;
+    private String deviceId = null;  // UUID from BLE characteristic 0xFF0A
     private String appVersion = null;
     private String buildInfo = null;
 
@@ -18,6 +19,15 @@ public class Device {
         this.name = name;
     }
 
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    @NonNull
     public String getMacAddress() {
         return macAddress;
     }

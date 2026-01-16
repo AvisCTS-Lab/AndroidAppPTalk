@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,15 +25,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SignalWifi4Bar
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +71,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.core.ble.ScannedDevice
+import com.avis.app.ptalk.domain.control.WifiNetwork
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
 import com.avis.app.ptalk.ui.component.dialog.BaseDialog
 import com.avis.app.ptalk.ui.component.dialog.ErrorDialog
@@ -89,13 +100,18 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
 
     fun requestBlePermissions() {
         val perms = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+: cần quyền Bluetooth mới + vị trí để scan BLE
             arrayOf(
                 Manifest.permission.BLUETOOTH_SCAN,
-                Manifest.permission.BLUETOOTH_CONNECT
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_FINE_LOCATION
             )
         } else {
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
+            // Android < 12: chỉ cần quyền vị trí
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
         }
         permissionLauncher.launch(perms)
     }
@@ -111,6 +127,10 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
 
     EnterDeviceConfigDialog(
         show = showWifiDialog,
+        wifiNetworks = uiState.wifiNetworks,
+        loadingWifiList = uiState.loadingWifiList,
+        deviceId = uiState.deviceId,
+        onRefreshWifi = { vm.refreshWifiList() },
         onDismiss = {
             vm.disconnectDevice()
             showWifiDialog = false
@@ -118,18 +138,23 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
         onSubmit = { ssid, pass, volume, brightness ->
             isLoading = true
             showWifiDialog = false
-            vm.configDeviceOnConnect(ssid, pass, volume, brightness, object : VMAddDevice.DeviceConfigCallback {
-                override fun onConfigSaved() {
-                    isLoading = false
-                    showSuccess = true
-                }
+            vm.configDeviceOnConnect(
+                ssid,
+                pass,
+                volume,
+                brightness,
+                object : VMAddDevice.DeviceConfigCallback {
+                    override fun onConfigSaved() {
+                        isLoading = false
+                        showSuccess = true
+                    }
 
-                override fun onConfigError(error: String) {
-                    isLoading = false
-                    showError = true
-                    errorMessage = error
-                }
-            })
+                    override fun onConfigError(error: String) {
+                        isLoading = false
+                        showError = true
+                        errorMessage = error
+                    }
+                })
         }
     )
 
@@ -323,7 +348,11 @@ private fun DeviceRow(
 @Composable
 private fun EnterDeviceConfigDialog(
     show: Boolean,
+    wifiNetworks: List<WifiNetwork> = emptyList(),
+    loadingWifiList: Boolean = false,
+    deviceId: String = "",
     position: DialogPosition = DialogPosition.BOTTOM,
+    onRefreshWifi: () -> Unit = {},
     onDismiss: () -> Unit = {},
     onSubmit: (String, String, Float, Float) -> Unit = { _, _, _, _ -> }
 ) {
@@ -337,6 +366,7 @@ private fun EnterDeviceConfigDialog(
     var isPasswordVisible by remember { mutableStateOf(false) }
     var volume by remember { mutableStateOf(0.5f) }
     var brightness by remember { mutableStateOf(0.5f) }
+    var showWifiDropdown by remember { mutableStateOf(false) }
 
     fun togglePasswordVisibility() {
         isPasswordVisible = !isPasswordVisible
@@ -385,28 +415,135 @@ private fun EnterDeviceConfigDialog(
                         )
                     }
                 }
-                // Wifi Ssid
-                Text(
-                    text = "Tên WiFi",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-                )
-                OutlinedTextField(
-                    value = wifiSsid,
-                    onValueChange = { wifiSsid = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Transparent),
-                    placeholder = { Text("Nhập tên WiFi") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email
-                    ),
-                    keyboardActions = KeyboardActions(onDone = {
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
-                    }),
-                    shape = RoundedCornerShape(22.dp),
-                )
+
+                // Device ID (if available)
+                if (deviceId.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Device ID: ",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = deviceId,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                // Wifi Ssid with dropdown
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Tên WiFi",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                    )
+                    if (loadingWifiList) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        IconButton(onClick = onRefreshWifi, modifier = Modifier.size(24.dp)) {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = "Refresh WiFi",
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                }
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = wifiSsid,
+                        onValueChange = { wifiSsid = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Transparent),
+                        placeholder = { Text(if (wifiNetworks.isEmpty()) "Nhập tên WiFi" else "Chọn hoặc nhập tên WiFi") },
+                        singleLine = true,
+                        leadingIcon = {
+                            Icon(
+                                Icons.Filled.Wifi,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        trailingIcon = {
+                            if (wifiNetworks.isNotEmpty()) {
+                                IconButton(onClick = { showWifiDropdown = !showWifiDropdown }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.ArrowDropDown,
+                                        contentDescription = "Show WiFi list"
+                                    )
+                                }
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text
+                        ),
+                        keyboardActions = KeyboardActions(onDone = {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                        }),
+                        shape = RoundedCornerShape(22.dp),
+                    )
+
+                    DropdownMenu(
+                        expanded = showWifiDropdown,
+                        onDismissRequest = { showWifiDropdown = false },
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .heightIn(max = 200.dp)
+                    ) {
+                        wifiNetworks.forEach { network ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = network.ssid,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                imageVector = Icons.Filled.SignalWifi4Bar,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(16.dp),
+                                                tint = when {
+                                                    network.rssi >= -50 -> Color(0xFF4CAF50)
+                                                    network.rssi >= -70 -> Color(0xFFFFC107)
+                                                    else -> Color(0xFFF44336)
+                                                }
+                                            )
+                                            Spacer(modifier = Modifier.size(4.dp))
+                                            Text(
+                                                text = "${network.rssi}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = Color.Gray
+                                            )
+                                        }
+                                    }
+                                },
+                                onClick = {
+                                    wifiSsid = network.ssid
+                                    showWifiDropdown = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 // Wifi pass
                 Text(
@@ -420,11 +557,11 @@ private fun EnterDeviceConfigDialog(
                     placeholder = { Text("Nhập mật khẩu") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { togglePasswordVisibility() }) {
                             Icon(
-                                imageVector = if(isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                imageVector = if (isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                                 contentDescription = "Show password"
                             )
                         }
@@ -461,7 +598,7 @@ private fun EnterDeviceConfigDialog(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    TextButton (
+                    TextButton(
                         onClick = { onDismiss() },
                         modifier = Modifier.weight(1f),
                     ) {

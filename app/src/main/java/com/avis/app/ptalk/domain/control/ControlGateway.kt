@@ -12,11 +12,17 @@ interface ControlGateway {
     suspend fun writeVolume(value: Int)
     suspend fun readBrightness(): Int
     suspend fun writeBrightness(value: Int)
-    suspend fun readWifiSsid(): String
+
     suspend fun writeWifiSsid(value: String)
     suspend fun writeWifiPass(value: String)
     suspend fun readAppVersion(): String
     suspend fun readBuildInfo(): String
     suspend fun saveConfig()
     suspend fun readDeviceId(): String
+    suspend fun readWifiList(): List<WifiNetwork>
 }
+
+data class WifiNetwork(
+    val ssid: String,
+    val rssi: Int
+)
