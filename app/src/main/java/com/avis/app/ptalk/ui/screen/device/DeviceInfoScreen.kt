@@ -34,7 +34,7 @@ fun DeviceInfoScreen(
             title = "Thông tin thiết bị",
             onBack = { navController.popBackStack() }
         )
-        Spacer(Modifier.padding(12.dp))
+        Spacer(Modifier.padding(8.dp))
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -3,6 +3,7 @@ package com.avis.app.ptalk.ui.component.appbar
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,35 +22,63 @@ import androidx.compose.ui.text.style.TextOverflow
 fun BaseTopAppBar(
     title: String? = null,
     onBack: () -> Unit,
+    center: Boolean = true,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        containerColor = MaterialTheme.colorScheme.background,
+        titleContentColor = MaterialTheme.colorScheme.onBackground
     )
 ) {
-    TopAppBar(
-        title = {
-            if (title != null) {
-                Text(
-                    title,
-                    maxLines = 1,
-                    fontWeight = FontWeight.SemiBold,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = { onBack() }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = "Back",
-                )
-            }
-        },
-        windowInsets = WindowInsets(0, 0, 0, 0),
-        colors = colors
-    )
+    if (center) {
+        CenterAlignedTopAppBar(
+            title = {
+                if (title != null) {
+                    Text(
+                        title,
+                        maxLines = 1,
+                        fontWeight = FontWeight.SemiBold,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = { onBack() }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = "Back",
+                    )
+                }
+            },
+            windowInsets = WindowInsets(0, 0, 0, 0),
+            colors = colors
+        )
+    } else {
+        TopAppBar(
+            title = {
+                if (title != null) {
+                    Text(
+                        title,
+                        maxLines = 1,
+                        fontWeight = FontWeight.SemiBold,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            navigationIcon = {
+                IconButton(onClick = { onBack() }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = "Back",
+                    )
+                }
+            },
+            windowInsets = WindowInsets(0, 0, 0, 0),
+            colors = colors
+        )
+    }
 }

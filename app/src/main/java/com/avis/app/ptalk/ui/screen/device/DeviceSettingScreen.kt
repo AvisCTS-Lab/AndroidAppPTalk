@@ -3,6 +3,8 @@ package com.avis.app.ptalk.ui.screen.device
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
@@ -17,7 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
@@ -40,8 +42,6 @@ fun DeviceSettingScreen(
 
     LaunchedEffect(Unit) {
         shareVmDevice.device.value?.let {
-            // Use deviceId (from BLE UUID 0xFF0A) instead of macAddress for WebSocket
-            // Check for both null and empty string
             val targetId = if (!it.deviceId.isNullOrBlank()) it.deviceId else it.macAddress
             vm.initDevice(targetId, it.macAddress)
         }
@@ -77,23 +77,19 @@ fun DeviceSettingScreen(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-
-
         Column(
             Modifier.fillMaxWidth()
-
-
         ) {
             BaseTopAppBar(
                 title = "Cài đặt thiết bị",
                 onBack = { navController.popBackStack() }
             )
-            Spacer(modifier = Modifier.padding(12.dp))
+            Spacer(modifier = Modifier.padding(8.dp))
 
             // Connection status
             if (!uiState.isConnected) {
                 Text(
-                    text = "⚠️ Chưa kết nối đến server",
+                    text = "Chưa kết nối đến server",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
@@ -107,8 +103,23 @@ fun DeviceSettingScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 FunctionCard(
+                    icon = Icons.Filled.SystemUpdate,
+                    label = "Cập nhật phần mềm (OTA)",
+                    onClick = { }
+                )
+                FunctionCard(
+                    icon = Icons.Filled.Restore,
+                    label = "Khôi phục cài đặt gốc",
+                    onClick = { }
+                )
+                FunctionCard(
                     icon = Icons.Filled.DeleteForever,
                     label = "Hủy liên kết thiết bị",
+                    onClick = { }
+                )
+                FunctionCard(
+                    icon = Icons.Filled.DeleteForever,
+                    label = "Reset thiết bị",
                     onClick = { showDeleteConfirm = true }
                 )
             }

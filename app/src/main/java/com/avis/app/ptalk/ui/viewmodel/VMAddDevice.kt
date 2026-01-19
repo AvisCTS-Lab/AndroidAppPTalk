@@ -165,7 +165,6 @@ class VMAddDevice @Inject constructor(
 
                 deviceControlGateway.saveConfig()
 
-
                 callback.onConfigSaved()
             } catch (e: Exception) {
                 ILog.d(TAG, "configDeviceOnConnect", e.message)

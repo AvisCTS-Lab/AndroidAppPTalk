@@ -85,7 +85,7 @@ fun DeviceChatDetailScreen(
                 .fillMaxSize()
                 .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
-            Spacer(modifier = Modifier.padding(12.dp))
+            Spacer(modifier = Modifier.padding(8.dp))
             val messages = remember(date) {
                 listOf(
                     ChatUiMessage("Câu hỏi của người dùng...", LocalTime.of(12, 30), true),

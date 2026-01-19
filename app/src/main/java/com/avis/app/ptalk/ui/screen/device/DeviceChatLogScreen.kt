@@ -60,7 +60,7 @@ fun DeviceChatLogScreen(
             title = "Lịch sử trò chuyện",
             onBack = { navController.popBackStack() }
         )
-        Spacer(modifier = Modifier.padding(12.dp))
+        Spacer(modifier = Modifier.padding(8.dp))
         Column(
             modifier = Modifier
                 .fillMaxSize()

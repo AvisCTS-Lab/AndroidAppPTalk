@@ -34,7 +34,6 @@ const val ANIM_DURATION = 300
 fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     val shareVMDevice = viewModel<ShareVMDevice>()
 
-
     NavHost(
         navController = navController,
         startDestination = Route.LOGIN,
@@ -83,7 +82,7 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier)
                 defaultValue = ""
             }
         )) { ResetPasswordScreen(navController) }
-        composable(Route.DEVICE) { DeviceListScreen(navController) }
+        composable(Route.DEVICE) { DeviceListScreen(navController, shareVMDevice) }
         composable(Route.DEVICE_ADDDEVICE) { AddDeviceScreen(navController) }
         composable(Route.DEVICE_DETAIL) { DeviceDetailScreen(navController, shareVMDevice) }
         composable(Route.REALTIME_CONTROL) { RealTimeControlScreen(navController, shareVMDevice) }

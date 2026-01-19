@@ -9,6 +9,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
@@ -66,7 +67,7 @@ fun MainNavigationBar(
     LaunchedEffect(shouldShow) { visible = shouldShow }
 
     val items = listOf(
-        BottomNavItem(Route.DEVICE, "Thiết bị", Icons.Default.Star, matchRoutes = setOf(
+        BottomNavItem(Route.DEVICE, "Thiết bị", Icons.Default.Home, matchRoutes = setOf(
             Route.DEVICE,
             Route.DEVICE_ADDDEVICE,
             Route.DEVICE_DETAIL,
@@ -74,7 +75,8 @@ fun MainNavigationBar(
             Route.DEVICE_CHATLOG,
             Route.DEVICE_CHATDETAIL,
             Route.DEVICE_INFO,
-            Route.DEVICE_SETTING
+            Route.DEVICE_SETTING,
+            Route.ANALYTICS
         )),
         BottomNavItem(Route.BAN_KEYWORD, "Chặn từ khóa", Icons.Default.Warning),
         BottomNavItem(Route.SETTING, "Cài đặt", Icons.Default.Settings)

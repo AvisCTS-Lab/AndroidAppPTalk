@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
@@ -22,12 +21,10 @@ import androidx.compose.material.icons.filled.Brightness6
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,7 +35,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -57,7 +53,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
-import com.avis.app.ptalk.ui.component.card.DeviceCard
+import com.avis.app.ptalk.ui.component.card.DetailDeviceCard
 import com.avis.app.ptalk.ui.viewmodel.VMRealTimeControl
 import com.avis.app.ptalk.ui.viewmodel.share.ShareVMDevice
 
@@ -143,7 +139,7 @@ fun RealTimeControlScreen(
                 title = "Điều khiển Real-time",
                 onBack = { navController.popBackStack() }
             )
-            Spacer(modifier = Modifier.padding(12.dp))
+            Spacer(modifier = Modifier.padding(8.dp))
 
             // Device card
             Column(
@@ -154,25 +150,13 @@ fun RealTimeControlScreen(
             ) {
                 shareVmDevice.device.value?.let {
                     Row(modifier = Modifier.fillMaxWidth(0.5f)) {
-                        DeviceCard(it)
+                        DetailDeviceCard(it)
                     }
                 }
 
                 // Connection status
                 ConnectionStatusBadge(isConnected = isConnected)
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Device Status Card
-            DeviceStatusCard(
-                batteryLevel = uiState.batteryLevel,
-                firmwareVersion = uiState.firmwareVersion,
-                wifiSsid = uiState.wifiSsid,
-                wifiRssi = uiState.wifiRssi,
-                deviceName = uiState.deviceName,
-                onRename = { showRenameDialog = true }
-            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -260,75 +244,6 @@ private fun ConnectionStatusBadge(isConnected: Boolean) {
             else MaterialTheme.colorScheme.error,
             modifier = Modifier.padding(start = 4.dp)
         )
-    }
-}
-
-@Composable
-private fun DeviceStatusCard(
-    batteryLevel: Int?,
-    firmwareVersion: String,
-    wifiSsid: String,
-    wifiRssi: Int?,
-    deviceName: String,
-    onRename: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Thông tin thiết bị",
-                    style = MaterialTheme.typography.titleMedium
-
-
-                )
-                IconButton(onClick = onRename) {
-                    Icon(Icons.Default.Edit, contentDescription = "Đổi tên")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Device name
-            if (deviceName.isNotEmpty()) {
-                StatusRow(label = "Tên", value = deviceName)
-            }
-
-            // Battery
-            batteryLevel?.let {
-                StatusRow(
-                    label = "Pin",
-                    value = "$it%",
-                    icon = Icons.Default.BatteryFull
-
-
-                )
-            }
-
-            // WiFi
-            if (wifiSsid.isNotEmpty()) {
-                StatusRow(
-                    label = "WiFi",
-                    value = wifiSsid + (wifiRssi?.let { " ($it dBm)" } ?: ""),
-                    icon = Icons.Default.Wifi
-                )
-            }
-
-            // Firmware
-            if (firmwareVersion.isNotEmpty()) {
-                StatusRow(label = "Firmware", value = firmwareVersion)
-            }
-        }
     }
 }
 

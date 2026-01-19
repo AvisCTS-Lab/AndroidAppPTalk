@@ -50,7 +50,6 @@ class PTalkBleClient(private val app: Context) : BleClient {
     private val TAG: String = "PTalkBleClient"
     private val sessions = ConcurrentHashMap<String, PTalkBleSession>()
 
-    @SuppressLint("MissingPermission")
     override fun scanForConfigDevices(): Flow<List<ScannedDevice>> {
         val manager = app.getSystemService(BluetoothManager::class.java)
             ?: return callbackFlow { trySend(emptyList()); awaitClose {} }
@@ -59,15 +58,9 @@ class PTalkBleClient(private val app: Context) : BleClient {
             ?: return callbackFlow { trySend(emptyList()); awaitClose {} }
 
         return callbackFlow {
-            // Accept either devices advertising our service UUID or named "PTalk"
-            val filters = listOf(
-                ScanFilter.Builder()
-                    .setServiceUuid(ParcelUuid(BleUuid.SVC_CONFIG))
-                    .build(),
-                ScanFilter.Builder()
-                    .setDeviceName("PTalk")
-                    .build()
-            )
+            val filter = ScanFilter.Builder()
+                .setServiceUuid(ParcelUuid(BleUuid.SVC_CONFIG))
+                .build()
             val settings = ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .build()
@@ -77,23 +70,15 @@ class PTalkBleClient(private val app: Context) : BleClient {
             val cb = object : ScanCallback() {
                 override fun onScanResult(callbackType: Int, result: ScanResult) {
                     val d = result.device
-                    val advertisedUuids =
-                        result.scanRecord?.serviceUuids?.map { it.uuid } ?: emptyList()
-                    val hasSvc = advertisedUuids.contains(BleUuid.SVC_CONFIG)
-                    val isNamePTalk =
-                        (result.scanRecord?.deviceName == "PTalk") || (d.name == "PTalk")
-                    val matches = hasSvc || isNamePTalk
-
-                    if (!matches) return
                     val item = ScannedDevice(
                         address = d.address,
                         name = result.scanRecord?.deviceName ?: d.name ?: d.address,
                         rssi = result.rssi,
-                        hasConfigService = hasSvc || isNamePTalk
+                        hasConfigService = true
                     )
                     devices[d.address] = item
 
-                    ILog.d(TAG, "scanForConfigDevices", "svc=$hasSvc name=$isNamePTalk")
+                    ILog.d(TAG, "scanForConfigDevices", "${item.hasConfigService}")
 
                     trySend(devices.values.sortedBy { it.name ?: it.address })
                 }
@@ -108,7 +93,7 @@ class PTalkBleClient(private val app: Context) : BleClient {
                 }
             }
 
-            scanner.startScan(filters, settings, cb)
+            scanner.startScan(listOf(filter), settings, cb)
             awaitClose { scanner.stopScan(cb) }
         }
             .onStart { emit(emptyList()) }
@@ -120,7 +105,7 @@ class PTalkBleClient(private val app: Context) : BleClient {
         // Reuse session if exists
         val existing = sessions[address]
         if (existing != null) {
-            ILog.d(TAG, "reuse session", "$address")
+            ILog.d(TAG, "reuse session", address)
             if (existing.isConnected.value) {
                 existing.close()
             }
@@ -128,7 +113,7 @@ class PTalkBleClient(private val app: Context) : BleClient {
             return existing
         }
 
-        ILog.d(TAG, "new session", "$address")
+        ILog.d(TAG, "new session", address)
         val manager = app.getSystemService(BluetoothManager::class.java)
             ?: error("BluetoothManager not available")
         val device = manager.adapter?.getRemoteDevice(address)
@@ -141,7 +126,7 @@ class PTalkBleClient(private val app: Context) : BleClient {
     }
 
     override suspend fun disconnect(address: String) {
-        ILog.d(TAG, "disconnect", "$address")
+        ILog.d(TAG, "disconnect", address)
         sessions.remove(address)?.close()
     }
 }
@@ -215,6 +200,7 @@ private class PTalkBleSession(
     }
 
     // Writes a characteristic with or without response
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     override suspend fun write(uuid: UUID, value: ByteArray, withResponse: Boolean): ByteArray {
         val ch = findCharacteristic(uuid) ?: error("Characteristic $uuid not found")
@@ -226,15 +212,7 @@ private class PTalkBleSession(
         val result = CompletableDeferred<Unit>()
         synchronized(opMutex) {
             pendingWrite = result
-            val success = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                g.writeCharacteristic(ch, value, ch.writeType) == BluetoothStatusCodes.SUCCESS
-            } else {
-                @Suppress("DEPRECATION")
-                ch.value = value
-                @Suppress("DEPRECATION")
-                g.writeCharacteristic(ch)
-            }
-            if (!success) {
+            if (g.writeCharacteristic(ch, value, ch.writeType) != BluetoothStatusCodes.SUCCESS) {
                 pendingWrite = null
                 error("writeCharacteristic returned false for $uuid")
             }
@@ -302,13 +280,11 @@ private class PTalkBleSession(
         pendingWrite = null
     }
 
-    @SuppressLint("MissingPermission")
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic,
         value: ByteArray
     ) {
-        gatt.readCharacteristic(characteristic)
         notifyChannel.trySend(value)
     }
 

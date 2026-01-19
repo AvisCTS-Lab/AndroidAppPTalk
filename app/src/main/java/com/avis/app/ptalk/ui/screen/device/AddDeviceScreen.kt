@@ -210,9 +210,9 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
             }
         }
 
-        Spacer(modifier = Modifier.padding(12.dp))
+        Spacer(modifier = Modifier.padding(8.dp))
         Text(
-            "Thiết bị tìm thấy",
+            "Các thiết bị xung quanh",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier.padding(horizontal = 12.dp)
         )

@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,11 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTimeFilled
-import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,84 +27,68 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.avis.app.ptalk.domain.define.DeviceConnectionStatus
 import com.avis.app.ptalk.domain.model.Device
-import com.avis.app.ptalk.domain.model.DeviceState
-import com.avis.app.ptalk.ui.component.StatusDot
+import com.avis.app.ptalk.ui.custom.IconWithText
+import com.avis.app.ptalk.ui.custom.StatusChip
 
 @Composable
 fun DeviceCard(device: Device, onClick: () -> Unit = {}) {
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier
             .fillMaxWidth(),
         onClick = { onClick() }
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        // main row: thumbnail on left, content on right
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(84.dp)
+                .padding(horizontal = 12.dp, vertical = 12.dp),
         ) {
+            // thumbnail / image placeholder
             Box(
                 modifier = Modifier
+                    .size(64.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color(0xFFCECECE))
-                    .fillMaxWidth(0.6f)
-                    .aspectRatio(0.85f)
             ) { /* image placeholder */ }
 
-            Spacer(Modifier.height(8.dp))
-            Text(device.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-//                val statusColor = when (device.status) {
-//                    DeviceConnectionStatus.ONLINE -> Color(0xFF2ECC71)
-//                    DeviceConnectionStatus.OFFLINE -> Color.Red
-//                    DeviceConnectionStatus.SLEEP -> Color(0xFF999999)
-//                }
-                val statusColor = Color(0xFF2ECC71)
-                StatusDot(color = statusColor)
-                Spacer(Modifier.padding(4.dp))
-                Text(
-//                    when (device.status) {
-//                        DeviceConnectionStatus.ONLINE -> "Online"
-//                        DeviceConnectionStatus.OFFLINE -> "Offline"
-//                        DeviceConnectionStatus.SLEEP -> "Sleep"
-//                    },
-                    "Online",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // content column: title + icons
+            Column(
+                modifier = Modifier.fillMaxHeight().weight(1f),
+                verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.BatteryFull,
-                    contentDescription = "Pin thiết bị",
-                    modifier = Modifier.size(16.dp),
-                )
-                Icon(
-                    imageVector = Icons.Default.Wifi,
-                    contentDescription = "Tín hiệu thiết bị",
-                    modifier = Modifier.size(16.dp)
-                )
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AccessTimeFilled,
-                        contentDescription = "Thời gian online",
-                        modifier = Modifier.size(16.dp)
+                    Text(
+                        text = device.name,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-//                    Text(
-//                        text = "${device.lastSeenMinutes}min",
-//                        style = MaterialTheme.typography.bodySmall,
-//                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    IconWithText(icon = Icons.Default.Wifi, text = "")
+                    IconWithText(icon = Icons.Default.AccessTimeFilled, text = "Time")
                 }
             }
+            // status chip on the right
+            val isOnline = device.deviceId != null
+            val fg = if (isOnline) Color(0xFF2ECC71) else Color(0xFFE34A4A)
+            val bg = if (isOnline) Color(0xFFE9F9EE) else Color(0xFFFFECEC)
+            StatusChip(if (isOnline) "Online" else "Offline", fg = fg, bg = bg)
         }
     }
 }

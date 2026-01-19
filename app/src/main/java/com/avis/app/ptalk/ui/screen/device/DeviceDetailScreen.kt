@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.ControlCamera
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Radio
@@ -33,18 +35,21 @@ fun DeviceDetailScreen(navController: NavController, shareVMDevice: ShareVMDevic
             title = device,
             onBack = { navController.popBackStack() }
         )
-        Spacer(modifier = Modifier.padding(12.dp))
+        Spacer(modifier = Modifier.padding(8.dp))
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            FunctionCard(Icons.Filled.Radio, "Điều khiển real-time", onClick = {
+            FunctionCard(Icons.Filled.ControlCamera, "Điều khiển real-time", onClick = {
                 navController.navigate(Route.REALTIME_CONTROL)
             })
             FunctionCard(Icons.Filled.MoreHoriz, "Lịch sử trò chuyện", onClick = {
                 navController.navigate(Route.DEVICE_CHATLOG)
+            })
+            FunctionCard(Icons.Filled.Analytics, "Thống kê", onClick = {
+                navController.navigate(Route.ANALYTICS)
             })
             FunctionCard(Icons.Filled.Info, "Thông tin thiết bị", onClick = {
                 navController.navigate(Route.DEVICE_INFO)
