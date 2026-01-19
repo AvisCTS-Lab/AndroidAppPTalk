@@ -16,21 +16,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.Brightness6
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.SystemUpdate
-import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -47,9 +41,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.avis.app.ptalk.ui.component.appbar.BaseTopAppBar
@@ -149,7 +142,7 @@ fun RealTimeControlScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 shareVmDevice.device.value?.let {
-                    Row(modifier = Modifier.fillMaxWidth(0.5f)) {
+                    Row(modifier = Modifier.fillMaxWidth(0.45f)) {
                         DetailDeviceCard(it)
                     }
                 }

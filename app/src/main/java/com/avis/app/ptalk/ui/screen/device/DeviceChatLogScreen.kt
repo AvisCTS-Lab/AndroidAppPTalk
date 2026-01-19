@@ -153,7 +153,10 @@ private fun DateRow(
         modifier = Modifier
             .height(48.dp)
             .fillMaxWidth(),
-        onClick = { onClick() }
+        onClick = { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
     ) {
         Row(
             modifier = Modifier

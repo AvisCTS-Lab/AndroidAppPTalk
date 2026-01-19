@@ -38,7 +38,10 @@ fun DeviceCard(device: Device, onClick: () -> Unit = {}) {
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier
             .fillMaxWidth(),
-        onClick = { onClick() }
+        onClick = { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
     ) {
         // main row: thumbnail on left, content on right
         Row(

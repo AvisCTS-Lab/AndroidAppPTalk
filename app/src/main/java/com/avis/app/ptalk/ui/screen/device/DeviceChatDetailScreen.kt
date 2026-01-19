@@ -60,7 +60,7 @@ fun DeviceChatDetailScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.surfaceVariant)
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 .padding(start = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -118,7 +118,7 @@ private fun MessageBubbleRow(message: ChatUiMessage) {
         Column(horizontalAlignment = if (message.fromUser) Alignment.Start else Alignment.End) {
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 tonalElevation = 0.dp,
                 modifier = Modifier.fillMaxWidth(0.85f)
             ) {

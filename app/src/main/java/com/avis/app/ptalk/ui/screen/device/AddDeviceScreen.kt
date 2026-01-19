@@ -309,7 +309,10 @@ private fun DeviceRow(
             .fillMaxWidth(),
         onClick = { onClick() },
         shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(

@@ -16,7 +16,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
-import com.avis.app.ptalk.ui.component.card.DetailDeviceCard
 import com.avis.app.ptalk.ui.component.card.DeviceCard
 import com.avis.app.ptalk.ui.viewmodel.VMDeviceList
 import com.avis.app.ptalk.ui.viewmodel.share.ShareVMDevice
@@ -73,7 +72,7 @@ fun DeviceListScreen(
                 ) {
                     Card(
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                         modifier = Modifier.weight(1f)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
@@ -85,7 +84,7 @@ fun DeviceListScreen(
 
                     Card(
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                         modifier = Modifier.weight(1f)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {

@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.avis.app.ptalk.domain.model.Device
-import com.avis.app.ptalk.ui.component.StatusDot
+import com.avis.app.ptalk.ui.custom.IconWithText
 
 @Composable
 fun DetailDeviceCard(device: Device, onClick: () -> Unit = {}) {
@@ -39,70 +39,45 @@ fun DetailDeviceCard(device: Device, onClick: () -> Unit = {}) {
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier
             .fillMaxWidth(),
-        onClick = { onClick() }
+        onClick = { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp).fillMaxWidth(),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color(0xFFCECECE))
-                    .fillMaxWidth(0.6f)
-                    .aspectRatio(0.85f)
+                    .fillMaxWidth(0.9f)
+                    .aspectRatio(0.95f)
             ) { /* image placeholder */ }
 
             Spacer(Modifier.height(8.dp))
             Text(device.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-//                val statusColor = when (device.status) {
-//                    DeviceConnectionStatus.ONLINE -> Color(0xFF2ECC71)
-//                    DeviceConnectionStatus.OFFLINE -> Color.Red
-//                    DeviceConnectionStatus.SLEEP -> Color(0xFF999999)
-//                }
-                val statusColor = Color(0xFF2ECC71)
-                StatusDot(color = statusColor)
-                Spacer(Modifier.padding(4.dp))
-                Text(
-//                    when (device.status) {
-//                        DeviceConnectionStatus.ONLINE -> "Online"
-//                        DeviceConnectionStatus.OFFLINE -> "Offline"
-//                        DeviceConnectionStatus.SLEEP -> "Sleep"
-//                    },
-                    "Online",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.BatteryFull,
-                    contentDescription = "Pin thiết bị",
-                    modifier = Modifier.size(16.dp),
-                )
                 Icon(
                     imageVector = Icons.Default.Wifi,
                     contentDescription = "Tín hiệu thiết bị",
                     modifier = Modifier.size(16.dp)
                 )
+                Spacer(modifier = Modifier.width(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AccessTimeFilled,
-                        contentDescription = "Thời gian online",
-                        modifier = Modifier.size(16.dp)
+                    IconWithText(
+                        icon = Icons.Default.AccessTimeFilled,
+                        text = "Time"
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-//                    Text(
-//                        text = "${device.lastSeenMinutes}min",
-//                        style = MaterialTheme.typography.bodySmall,
-//                    )
                 }
             }
         }

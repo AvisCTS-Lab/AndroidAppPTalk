@@ -25,7 +25,10 @@ fun FunctionCard(icon: ImageVector, label: String, onClick: () -> Unit = {}) {
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        onClick = { onClick() }
+        onClick = { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
