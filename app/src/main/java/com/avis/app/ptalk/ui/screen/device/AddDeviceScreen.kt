@@ -68,7 +68,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.core.ble.ScannedDevice
 import com.avis.app.ptalk.domain.control.WifiNetwork
@@ -99,20 +99,12 @@ fun AddDeviceScreen(navController: NavController, vm: VMAddDevice = hiltViewMode
     }
 
     fun requestBlePermissions() {
-        val perms = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Android 12+: cần quyền Bluetooth mới + vị trí để scan BLE
+        val perms =
             arrayOf(
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
-        } else {
-            // Android < 12: chỉ cần quyền vị trí
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-        }
         permissionLauncher.launch(perms)
     }
 

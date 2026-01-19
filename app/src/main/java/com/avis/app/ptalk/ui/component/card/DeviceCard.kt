@@ -106,7 +106,6 @@ fun DeviceCard(device: Device, onClick: () -> Unit = {}) {
 //                        style = MaterialTheme.typography.bodySmall,
 //                    )
                 }
-
             }
         }
     }

@@ -51,7 +51,10 @@ fun DeviceChatDetailScreen(
     )
 
     Column(Modifier.fillMaxSize()) {
-        BaseTopAppBar(title = "Lịch sử trò chuyện") { navController.popBackStack() }
+        BaseTopAppBar(
+            title = "Lịch sử trò chuyện",
+            onBack = { navController.popBackStack() }
+        )
 
         // Date header row + actions
         Row(

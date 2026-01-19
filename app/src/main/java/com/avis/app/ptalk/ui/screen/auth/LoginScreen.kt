@@ -1,212 +1,225 @@
 package com.avis.app.ptalk.ui.screen.auth
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.avis.app.ptalk.navigation.Route
-import com.avis.app.ptalk.ui.component.dialog.ForgotPasswordDialog
-import com.avis.app.ptalk.ui.viewmodel.VMAuth
+import com.avis.app.ptalk.ui.component.dialog.ErrorDialog
+import com.avis.app.ptalk.ui.viewmodel.auth.VMAuth
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    vm: VMAuth = viewModel()
+    vm: VMAuth = hiltViewModel()
 ) {
     val uiState = vm.uiState.collectAsStateWithLifecycle().value
-    var showForgotPassword by remember { mutableStateOf(false) }
 
-    if (showForgotPassword) {
-        ForgotPasswordDialog(
-            onDismiss = {showForgotPassword = false},
-            onSendCode = {},
-        )
-    }
+    // dialog state (use dialogMessage as single source of truth)
+    var dialogMessage by remember { mutableStateOf<String?>(null) }
 
+    // collect events for navigation and error handling
     LaunchedEffect(Unit) {
         vm.events.collect { event ->
             when (event) {
                 is VMAuth.AuthEvent.LoginSuccess -> {
-                    navController.navigate(Route.DEVICE)
+                    navController.navigate(Route.DEVICE) {
+                        launchSingleTop = true
+                        popUpTo(navController.graph.startDestinationId) { saveState = false }
+                    }
                 }
                 is VMAuth.AuthEvent.ShowError -> {
-
+                    dialogMessage = event.message
                 }
                 else -> Unit
             }
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Box(
-            modifier = Modifier
-                .height(320.dp)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "PTalk",
-                style = TextStyle(
-                    fontSize = 128.sp,
-                    fontWeight = FontWeight.Black,
-                    fontStyle = FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
+    ErrorDialog(
+        show = dialogMessage != null,
+        message = dialogMessage,
+        onDismiss = {
+            dialogMessage = null
         }
+    )
 
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
+                .padding(horizontal = 20.dp)
+                .padding(top = 12.dp, bottom = 24.dp),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth().weight(1f)
             ) {
+                // Title
                 Text(
-                    text = "Tên tài khoản",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = "Chào mừng quay lại",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+
+                // Subtitle
+                Text(
+                    text = "Đăng nhập để tiếp tục theo dõi thiết bị của bạn",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
+
+                Spacer(Modifier.height(24.dp))
+
+                // Email / username
                 OutlinedTextField(
-                    value = uiState.username,
-                    onValueChange = { vm.onUsernameChanged(value = it) },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Email/Phone") },
+                    value = uiState.email,
+                    onValueChange = { vm.onEmailChanged(it) },
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = MaterialTheme.shapes.large,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = "email",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    placeholder = { Text("Nhập email") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    )
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Mật khẩu",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+
+                Spacer(Modifier.height(12.dp))
+
+                // Password
                 OutlinedTextField(
                     value = uiState.password,
-                    onValueChange = { vm.onPasswordChanged(value = it) },
+                    onValueChange = { vm.onPasswordChanged(it) },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Nhập mật khẩu") },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    visualTransformation = if(uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    shape = MaterialTheme.shapes.large,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = "password",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    placeholder = { Text("Nhập mật khẩu") },
+                    visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { vm.togglePasswordVisibility() }) {
                             Icon(
-                                imageVector = if(uiState.isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                contentDescription = "Show password"
+                                imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = "Password Visibility"
                             )
                         }
                     },
-                    shape = RoundedCornerShape(20.dp),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    )
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+
+
+                Spacer(Modifier.height(12.dp))
+
+                // Forgot password
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = "Quên mật khẩu?",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.clickable {
+                            navController.navigate(Route.FORGOT_PASSWORD)
+                        }
+                    )
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                // Login button (tonal for lighter look like screenshot)
                 Button(
                     onClick = { vm.login() },
-                    enabled = true,
+                    enabled = !uiState.isLoading,
                     modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .fillMaxWidth(0.55f),
-                    contentPadding = PaddingValues(vertical = 12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    shape = RoundedCornerShape(14.dp)
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = MaterialTheme.shapes.large,
+                    colors = ButtonDefaults.filledTonalButtonColors()
                 ) {
-                    Text("Đăng nhập", fontWeight = FontWeight.SemiBold)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                SignupPromptAnnotated(
-                    onClickSignUp = {
-                        navController.navigate(Route.SIGNUP)
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text(
+                            text = "Đăng nhập",
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                )
-                Spacer(Modifier.height(6.dp))
+                }
+            }
+            // Sign up row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
                 Text(
-                    text = "Quên mật khẩu",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.inversePrimary,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    modifier = Modifier.clickable { showForgotPassword = true }
+                    text = "Bạn chưa có tài khoản? ",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Đăng ký ngay",
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { navController.navigate(Route.SIGNUP) }
                 )
             }
         }
     }
-}
-
-@Composable
-fun SignupPromptAnnotated(onClickSignUp: () -> Unit) {
-    val annotated = buildAnnotatedString {
-        append("Bạn chưa có tài khoản vui lòng bấm ")
-        val start = length
-        append("Đăng ký")
-        addStyle(
-            style = SpanStyle(
-                color = MaterialTheme.colorScheme.inversePrimary,
-                fontWeight = FontWeight.SemiBold,
-                textDecoration = TextDecoration.Underline
-            ),
-            start = start,
-            end = length
-        )
-        addStringAnnotation(tag = "signup", annotation = "signup", start = start, end = length)
-    }
-    Text(
-        text = annotated,
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier.clickable {
-            annotated.getStringAnnotations(tag = "signup", start = 0, end = annotated.length)
-            onClickSignUp()
-        },
-    )
 }

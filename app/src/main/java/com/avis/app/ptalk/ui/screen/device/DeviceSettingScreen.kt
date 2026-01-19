@@ -84,7 +84,10 @@ fun DeviceSettingScreen(
 
 
         ) {
-            BaseTopAppBar(title = "Cài đặt thiết bị") { navController.popBackStack() }
+            BaseTopAppBar(
+                title = "Cài đặt thiết bị",
+                onBack = { navController.popBackStack() }
+            )
             Spacer(modifier = Modifier.padding(12.dp))
 
             // Connection status

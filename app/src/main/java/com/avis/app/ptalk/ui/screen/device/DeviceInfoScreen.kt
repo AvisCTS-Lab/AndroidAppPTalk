@@ -30,7 +30,10 @@ fun DeviceInfoScreen(
     val device = shareVmDevice.device.value
 
     Column(Modifier.fillMaxSize()) {
-        BaseTopAppBar(title = "Thông tin thiết bị") { navController.popBackStack() }
+        BaseTopAppBar(
+            title = "Thông tin thiết bị",
+            onBack = { navController.popBackStack() }
+        )
         Spacer(Modifier.padding(12.dp))
         Column(
             modifier = Modifier
